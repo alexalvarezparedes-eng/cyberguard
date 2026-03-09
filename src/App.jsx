@@ -1,18 +1,8 @@
 import { useState } from "react";
 import Login from "./Login";
-
-export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  if (!loggedIn) {
-    return <Login onLogin={() => setLoggedIn(true)} />;
-  }
-
-  return (
-    // ... aquí va el resto de tu aplicación actual
-  );
-}
-import { useState, useEffect, useRef } from "react";
+import { auth } from "./firebase";
+import { signOut } from "firebase/auth";
+import { useEffect, useRef } from "react";
 
 const SCENARIOS = [
   {
@@ -52,7 +42,7 @@ Equipo de Seguridad`,
       { text: "Tr3n-Azul#Nube!47", correct: true },
       { text: "123456789", correct: false },
     ],
-    explanation: "Una contraseña fuerte combina mayúsculas, minúsculas, números y símbolos, tiene más de 12 caracteres y NO contiene datos personales. Las frases de contraseña como 'Tr3n-Azul#Nube!47' son más seguras y fáciles de recordar.",
+    explanation: "Una contraseña fuerte combina mayúsculas, minúsculas, números y símbolos, tiene más de 12 caracteres y NO contiene datos personales.",
     redFlags: ["Nombre propio", "Año de nacimiento", "Palabras comunes", "Solo números secuenciales"],
     points: 100,
   },
@@ -71,7 +61,7 @@ Equipo de Seguridad`,
       { text: "Usa tus datos móviles o una VPN antes de conectarte", correct: true },
       { text: "Preguntas la contraseña al cajero y la usas", correct: false },
     ],
-    explanation: "Las redes WiFi públicas son peligrosas para transacciones sensibles. Los atacantes pueden crear redes falsas (Evil Twin) o interceptar tráfico (Man-in-the-Middle). Usa siempre datos móviles para operaciones bancarias, o una VPN confiable.",
+    explanation: "Las redes WiFi públicas son peligrosas para transacciones sensibles. Usa siempre datos móviles para operaciones bancarias, o una VPN confiable.",
     redFlags: ["Redes sin contraseña", "Nombres genéricos 'FREE'", "Transacciones sensibles en WiFi público", "Sin verificar autenticidad"],
     points: 150,
   },
@@ -93,7 +83,7 @@ programa y nos dé acceso remoto. Es gratis y urgente.
       { text: "Colgar inmediatamente sin seguir ninguna instrucción", correct: true },
       { text: "Descargar el programa pero no dar contraseñas", correct: false },
     ],
-    explanation: "Microsoft, Google, tu banco y otras empresas NUNCA te llaman sin aviso para decirte que tienes un virus. Este es un scam de soporte técnico falso. Si cedes el acceso remoto, pueden robar datos, instalar malware o pedirte dinero.",
+    explanation: "Microsoft, Google, tu banco y otras empresas NUNCA te llaman sin aviso para decirte que tienes un virus.",
     redFlags: ["Llamada no solicitada", "Urgencia y miedo", "Solicitud de acceso remoto", "Empresas legítimas no llaman así"],
     points: 150,
   },
@@ -115,7 +105,7 @@ Por favor no le digas nada a mis padres 😬"`,
       { text: "Le pides su número de Bizum y le envías", correct: false },
       { text: "Le preguntas por WhatsApp más detalles antes de enviar", correct: false },
     ],
-    explanation: "Este es el 'scam del amigo en apuros'. Los atacantes hackean o clonan cuentas de WhatsApp para pedir dinero. SIEMPRE llama al número real de tu contacto para verificar antes de enviar dinero.",
+    explanation: "Este es el 'scam del amigo en apuros'. SIEMPRE llama al número real de tu contacto para verificar antes de enviar dinero.",
     redFlags: ["Urgencia repentina", "Petición de dinero", "'No le digas a nadie'", "Solo contacto por texto"],
     points: 150,
   },
@@ -134,7 +124,7 @@ las actualizaciones no sirven de nada."`,
       { text: "Depende, solo hay que instalar las de seguridad", correct: false },
       { text: "Mejor esperar un mes para ver si tienen bugs", correct: false },
     ],
-    explanation: "El 60% de las brechas de seguridad explotan vulnerabilidades con parches disponibles que no fueron instalados. Activa las actualizaciones automáticas y aplícalas dentro de las primeras 24-48 horas.",
+    explanation: "El 60% de las brechas de seguridad explotan vulnerabilidades con parches disponibles que no fueron instalados.",
     redFlags: ["Ignorar actualizaciones", "Creer que no sirven", "Posponer indefinidamente", "Solo actualizar apps visibles"],
     points: 100,
   },
@@ -159,7 +149,7 @@ Gracias, Alex Alvarez - Director General`,
       { text: "Abrirlo pero en modo seguro", correct: false },
       { text: "Reenviarlo a tu correo personal para revisarlo en casa", correct: false },
     ],
-    explanation: "El archivo '.pdf.exe' es un ejecutable malicioso disfrazado de PDF. Señales: extensión doble, urgencia + confidencialidad. Siempre verifica por teléfono con tu jefe antes de abrir adjuntos inesperados.",
+    explanation: "El archivo '.pdf.exe' es un ejecutable malicioso disfrazado de PDF. Siempre verifica por teléfono con tu jefe antes de abrir adjuntos inesperados.",
     redFlags: ["Extensión .exe disfrazada", "Urgencia + confidencialidad", "Verificar solo por email", "Nombre genérico del archivo"],
     points: 200,
   },
@@ -182,7 +172,7 @@ de recibir para proteger tu cuenta."`,
       { text: "Pides más datos para verificar que es Google", correct: false },
       { text: "Das solo los primeros 3 dígitos como prueba", correct: false },
     ],
-    explanation: "El atacante ya tiene tu contraseña y solo necesita el código 2FA. Google, Apple, tu banco u CUALQUIER empresa NUNCA te pedirá un código de verificación por teléfono. El SMS mismo dice 'No compartas este código'.",
+    explanation: "Google, Apple, tu banco o CUALQUIER empresa NUNCA te pedirá un código de verificación por teléfono.",
     redFlags: ["Solicitud del código 2FA", "Llamada inmediata tras el SMS", "Urgencia de 'proteger tu cuenta'", "Nadie legítimo pide códigos 2FA"],
     points: 200,
   },
@@ -199,7 +189,8 @@ const TIPS = [
   { icon: "🛡️", title: "VPN en redes públicas", desc: "Cifra tu tráfico en cafés, aeropuertos y hoteles." },
 ];
 
-export default function CyberGuard() {
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [screen, setScreen] = useState("home");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -270,21 +261,19 @@ export default function CyberGuard() {
     setChatHistory(h => [...h, { role: "user", text: question }]);
     setAiLoading(true);
     try {
-      const res = await fetch("/api/chat", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1000,
-    system: `Eres CyberGuard AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
-    messages: [
-      ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
-      { role: "user", content: question },
-    ],
-  }),
-});
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `Eres CyberGuard AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
+          messages: [
+            ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
+            { role: "user", content: question },
+          ],
+        }),
+      });
       const data = await res.json();
       const answer = data.content?.map(b => b.text || "").join("") || "No pude procesar tu pregunta.";
       setChatHistory(h => [...h, { role: "assistant", text: answer }]);
@@ -293,6 +282,18 @@ export default function CyberGuard() {
     }
     setAiLoading(false);
   };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setLoggedIn(false);
+    resetQuiz();
+    setScreen("home");
+  };
+
+  // Mostrar Login si no está autenticado
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
+  }
 
   const C = { green: "#00ffc8", red: "#ff0040", bg: "#060b10", panel: "rgba(0,255,200,0.04)", border: "rgba(0,255,200,0.12)", dim: "#4a7a90", mid: "#8ab0c4" };
   const wrap = { minHeight: "100vh", background: C.bg, color: "#e0f0ff", fontFamily: "'Courier New', monospace", position: "relative", overflow: "hidden" };
@@ -306,7 +307,11 @@ export default function CyberGuard() {
     <div style={wrap}>
       <div style={grid} /><div style={scan} />
       <div style={cont}>
-        <div style={{ textAlign: "center", padding: "36px 0 24px" }}>
+        {/* Botón cerrar sesión */}
+        <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 12 }}>
+          <button style={btn("dim")} onClick={handleLogout}>🔓 Cerrar sesión</button>
+        </div>
+        <div style={{ textAlign: "center", padding: "20px 0 24px" }}>
           <div style={{ fontSize: 56, filter: glitch ? "hue-rotate(90deg) brightness(2)" : "none", transition: "filter 0.1s", marginBottom: 8 }}>🛡️</div>
           <h1 style={{ fontSize: "clamp(26px,7vw,54px)", fontWeight: 900, letterSpacing: "0.12em", margin: "0 0 6px", color: C.green, textShadow: glitch ? `3px 0 ${C.red},-3px 0 ${C.green}` : `0 0 40px ${C.green}80`, transition: "all 0.1s" }}>CYBER<span style={{ color: C.red }}>GUARD</span></h1>
           <p style={{ color: C.dim, fontSize: 11, letterSpacing: "0.35em", marginBottom: 6 }}>ENTRENAMIENTO EN SEGURIDAD DIGITAL</p>
