@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import Login from "./Login";
 import { auth } from "./firebase";
 import { signOut } from "firebase/auth";
-
+import { supabase } from "./supabase";
 const SCENARIOS = [
   // PHISHING
   {
@@ -575,6 +575,7 @@ export default function App() {
   const [aiLoading, setAiLoading] = useState(false);
   const [tipIdx, setTipIdx] = useState(0);
   const [showBadge, setShowBadge] = useState(false);
+  const [rankingData, setRankingData] = useState([]);
   const chatEndRef = useRef(null);
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
@@ -607,16 +608,29 @@ export default function App() {
   };
 
   const nextScenario = () => {
-    if (currentIdx < filteredScenarios.length - 1) {
-      setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
-    } else { setScreen("results"); }
-  };
+  if (currentIdx < filteredScenarios.length - 1) {
+    setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
+  } else {
+    saveScore(score, totalPoints, filter);
+    setScreen("results");
+  }
+};
 
   const resetQuiz = () => {
     setCurrentIdx(0); setSelected(null); setShowResult(false);
     setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
   };
-
+const saveScore = async (finalScore, finalPoints, filterUsed) => {
+  const user = auth.currentUser;
+  if (!user) return;
+  await supabase.from("ranking").insert([{
+    username: user.displayName || user.email,
+    email: user.email,
+    score: finalScore,
+    points: finalPoints,
+    category: filterUsed,
+  }]);
+};
   const askAI = async () => {
     if (!userQ.trim() || aiLoading) return;
     const question = userQ.trim();
@@ -645,7 +659,15 @@ export default function App() {
     }
     setAiLoading(false);
   };
-
+const loadRanking = async () => {
+  const { data } = await supabase
+    .from("ranking")
+    .select("*")
+    .order("points", { ascending: false })
+    .limit(10);
+  setRankingData(data || []);
+  setScreen("ranking");
+};
   const handleLogout = async () => {
     await signOut(auth);
     setLoggedIn(false);
@@ -844,7 +866,42 @@ export default function App() {
       </div>
     );
   }
-
+if (screen === "ranking") return (
+  <div style={wrap}>
+    <div style={cont}>
+      <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
+        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
+        <div style={{ width: 80 }} />
+      </div>
+      <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+        {rankingData.length === 0 ? (
+          <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
+            <p>Aún no hay puntajes registrados.</p>
+            <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
+          </div>
+        ) : (
+          rankingData.map((entry, idx) => (
+            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
+              <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
+                {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
+                <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
+                <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  </div>
+);
   if (screen === "results") {
     const pct = (score / filteredScenarios.length) * 100;
     const level = pct >= 75 ? { label: "EXPERTO", color: C.green, bg: C.greenPale, emoji: "🏆" } : pct >= 50 ? { label: "INTERMEDIO", color: "#f57f17", bg: "#fff8e1", emoji: "🎯" } : { label: "PRINCIPIANTE", color: C.red, bg: "#ffebee", emoji: "⚠️" };
@@ -884,6 +941,7 @@ export default function App() {
             <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 Consultar IA</button>
+            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
         </div>
