@@ -624,19 +624,19 @@ export default function App() {
     setChatHistory(h => [...h, { role: "user", text: question }]);
     setAiLoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: `Eres CyberEscudo FAE AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
-          messages: [
-            ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
-            { role: "user", content: question },
-          ],
-        }),
-      });
+      const res = await fetch("/api/chat", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1000,
+    system: `Eres CyberEscudo FAE AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
+    messages: [
+      ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
+      { role: "user", content: question },
+    ],
+  }),
+});
       const data = await res.json();
       const answer = data.content?.map(b => b.text || "").join("") || "No pude procesar tu pregunta.";
       setChatHistory(h => [...h, { role: "assistant", text: answer }]);
