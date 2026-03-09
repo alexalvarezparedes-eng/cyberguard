@@ -734,6 +734,7 @@ const loadRanking = async () => {
             <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
             <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 Consultar IA</button>
+            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
           </div>
         </div>
         <div style={{ ...card, padding: "14px 18px", marginBottom: 14, borderLeft: `4px solid ${C.greenLight}` }}>
