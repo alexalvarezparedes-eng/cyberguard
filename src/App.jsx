@@ -1,3 +1,17 @@
+import { useState } from "react";
+import Login from "./Login";
+
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
+  }
+
+  return (
+    // ... aquí va el resto de tu aplicación actual
+  );
+}
 import { useState, useEffect, useRef } from "react";
 
 const SCENARIOS = [
@@ -128,7 +142,7 @@ las actualizaciones no sirven de nada."`,
     id: 7, category: "Malware", icon: "💀", difficulty: "DIFÍCIL",
     title: "Archivo adjunto del trabajo",
     description: "Recibes este email de tu jefe (o eso parece):",
-    content: `De: director@tu-empresa.com
+    content: `De: director@fae.mi1.ec
 Asunto: Revisar URGENTE - Contrato confidencial
 
 Hola,
@@ -137,7 +151,7 @@ Es confidencial, no lo compartas con nadie todavía.
 
 [Contrato_Final_2024.pdf.exe] (2.3 MB)
 
-Gracias, Roberto Méndez - Director General`,
+Gracias, Alex Alvarez - Director General`,
     question: "¿Qué haces?",
     options: [
       { text: "Abrir el archivo, viene de tu jefe directo", correct: false },
