@@ -729,47 +729,56 @@ export default function App() {
       </div>
     );
   }
-
   // ===== PANTALLA: RANKING =====
+
   if (screen === "ranking") return (
-    <div style={wrap}>
-      <div style={cont}>
-        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
-          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
-          <div style={{ width: 80 }} />
-        </div>
-        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-          {rankingData.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
-              <p>Aún no hay puntajes registrados.</p>
-              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
-            </div>
-          ) : (
-            rankingData.map((entry, idx) => (
-              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
-                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
-                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
-                </div>
+  <div style={wrap}>
+    <div style={cont}>
+      <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
+        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>Top 10 Ranking</h2>
+        <div style={{ width: 80 }} />
+      </div>
+      <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+        {rankingData.map((entry, idx) => {
+          const nombre = entry.username ? entry.username.split("@")[0] : "Anonimo";
+          const puntos = entry.points ? entry.points : 0;
+          const correctas = entry.score ? entry.score : 0;
+          const medalla = idx === 0 ? "1" : idx === 1 ? "2" : idx === 2 ? "3" : String(idx + 1);
+          return (
+            <div
+              key={entry.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                padding: "14px 20px",
+                borderBottom: `1px solid ${C.border}`,
+                background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel
+              }}
+            >
+              <div style={{ fontSize: 20, width: 36, textAlign: "center", fontWeight: 900, color: C.green }}>
+                {medalla}
               </div>
-            ))
-          )}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Jugar Ahora</button>
-        </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{nombre}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>{puntos} pts</div>
+                <div style={{ color: C.dim, fontSize: 11 }}>{correctas} correctas</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+        <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>
+          Jugar Ahora
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
