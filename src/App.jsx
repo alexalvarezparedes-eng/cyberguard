@@ -450,17 +450,30 @@ export default function App() {
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
-    const user = auth.currentUser;
-    if (!user) return;
-    await supabase.from("ranking").insert([{
+  console.log("=== GUARDANDO PUNTAJE ===", finalScore, finalPoints, filterUsed);
+  const user = auth.currentUser;
+  console.log("Usuario actual:", user);
+  
+  if (!user) {
+    console.log("ERROR: No hay usuario autenticado");
+    return;
+  }
+  
+  try {
+    const { data, error } = await supabase.from("ranking").insert([{
       username: user.displayName || user.email,
       email: user.email,
       score: finalScore,
       points: finalPoints,
       category: filterUsed,
     }]);
-  };
-
+    
+    console.log("Respuesta Supabase - data:", data);
+    console.log("Respuesta Supabase - error:", error);
+  } catch (e) {
+    console.error("Excepción:", e);
+  }
+};
   const askAI = async () => {
     if (!userQ.trim() || aiLoading) return;
     const question = userQ.trim();
