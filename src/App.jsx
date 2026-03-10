@@ -9,16 +9,7 @@ const SCENARIOS = [
     id: 1, category: "Phishing", icon: "🎣", difficulty: "FÁCIL",
     title: "Email bancario sospechoso",
     description: "Recibes este email en tu bandeja de entrada:",
-    content: `De: soporte@bancopichincha.net
-Asunto: ⚠️ URGENTE: Su cuenta será bloqueada en 24h
-
-Estimado cliente,
-Hemos detectado actividad inusual. Para evitar el 
-bloqueo INMEDIATO haga clic aquí:
-→ http://bancopichincha-verificacion.tk/login
-
-Ingrese sus credenciales para confirmar su identidad.
-Equipo de Seguridad`,
+    content: `De: soporte@bancopichincha.net\nAsunto: ⚠️ URGENTE: Su cuenta será bloqueada en 24h\n\nEstimado cliente,\nHemos detectado actividad inusual. Para evitar el \nbloqueo INMEDIATO haga clic aquí:\n→ http://bancopichincha-verificacion.tk/login\n\nIngrese sus credenciales para confirmar su identidad.\nEquipo de Seguridad`,
     question: "¿Qué harías?",
     options: [
       { text: "Hacer clic en el enlace y verificar mi cuenta", correct: false },
@@ -34,18 +25,7 @@ Equipo de Seguridad`,
     id: 9, category: "Phishing", icon: "🎣", difficulty: "MEDIO",
     title: "Premio falso de Amazon",
     description: "Recibes este email en tu correo:",
-    content: `De: premios@amazon-ganadores.com
-Asunto: 🎉 ¡Felicidades! Has ganado un iPhone 15
-
-Estimado usuario,
-Has sido seleccionado como ganador de nuestro 
-sorteo mensual. Tu premio: iPhone 15 Pro (128GB).
-
-Para reclamar tu premio GRATIS haz clic aquí:
-→ http://amazon-prizes-claim.xyz/winner
-
-Solo necesitas pagar $9.99 de envío.
-¡Oferta válida por 24 horas!`,
+    content: `De: premios@amazon-ganadores.com\nAsunto: 🎉 ¡Felicidades! Has ganado un iPhone 15\n\nEstimado usuario,\nHas sido seleccionado como ganador de nuestro \nsorteo mensual. Tu premio: iPhone 15 Pro (128GB).\n\nPara reclamar tu premio GRATIS haz clic aquí:\n→ http://amazon-prizes-claim.xyz/winner\n\nSolo necesitas pagar $9.99 de envío.\n¡Oferta válida por 24 horas!`,
     question: "¿Qué haces?",
     options: [
       { text: "Haces clic y pagas el envío, es solo $9.99", correct: false },
@@ -60,19 +40,8 @@ Solo necesitas pagar $9.99 de envío.
   {
     id: 10, category: "Phishing", icon: "🎣", difficulty: "DIFÍCIL",
     title: "Email del departamento TIC",
-    description: "Recibes este mensaje del 'departamento  TIC' del Ala 21:",
-    content: `De: Tic-soporte@fae.mi1.com
-Asunto: Actualización obligatoria de contraseña
-
-Estimado amigo,
-Por políticas de seguridad debe actualizar su 
-contraseña antes de las 5pm de hoy.
-
-Si no lo hace, su cuenta será desactivada.
-→ https://portal-fae-update.net/password
-
-Ingrese su contraseña actual y la nueva.
-Departamento de TIC`,
+    description: "Recibes este mensaje del 'departamento TIC' del Ala 21:",
+    content: `De: Tic-soporte@fae.mi1.com\nAsunto: Actualización obligatoria de contraseña\n\nEstimado amigo,\nPor políticas de seguridad debe actualizar su \ncontraseña antes de las 5pm de hoy.\n\nSi no lo hace, su cuenta será desactivada.\n→ https://portal-fae-update.net/password\n\nIngrese su contraseña actual y la nueva.\nDepartamento de TIC`,
     question: "¿Qué haces?",
     options: [
       { text: "Actualizas la contraseña, viene de TIC y es urgente", correct: false },
@@ -84,7 +53,6 @@ Departamento de TIC`,
     redFlags: ["Dominio externo sospechoso", "Solicita contraseña actual", "Urgencia para actuar hoy", "URL no corporativa"],
     points: 200,
   },
-  // CONTRASEÑAS
   {
     id: 2, category: "Contraseñas", icon: "🔐", difficulty: "FÁCIL",
     title: "Elige tu contraseña bancaria",
@@ -105,14 +73,7 @@ Departamento de TIC`,
     id: 11, category: "Contraseñas", icon: "🔐", difficulty: "MEDIO",
     title: "Reutilización de contraseñas",
     description: "Tu amigo te dice:",
-    content: `"Yo uso la misma contraseña en todos lados 
-pero le agrego el nombre del sitio al final.
-
-Por ejemplo: MiClave123_Facebook, 
-MiClave123_Gmail, MiClave123_Banco.
-
-Así es fácil recordarlas y son diferentes 
-en cada sitio. ¿No es ingenioso?"`,
+    content: `"Yo uso la misma contraseña en todos lados \npero le agrego el nombre del sitio al final.\n\nPor ejemplo: MiClave123_Facebook, \nMiClave123_Gmail, MiClave123_Banco.\n\nAsí es fácil recordarlas y son diferentes \nen cada sitio. ¿No es ingenioso?"`,
     question: "¿Es una buena práctica de seguridad?",
     options: [
       { text: "Sí, es inteligente y fácil de recordar", correct: false },
@@ -128,13 +89,7 @@ en cada sitio. ¿No es ingenioso?"`,
     id: 12, category: "Contraseñas", icon: "🔐", difficulty: "DIFÍCIL",
     title: "Gestor de contraseñas hackeado",
     description: "Tu compañero de trabajo dice:",
-    content: `"¿Gestor de contraseñas? ¡Jamás! 
-Si hackean ese programa, tienen TODAS 
-mis contraseñas de golpe. 
-
-Prefiero escribirlas en un cuaderno o 
-en un archivo de Excel en mi escritorio. 
-Al menos eso no se puede hackear remotamente."`,
+    content: `"¿Gestor de contraseñas? ¡Jamás! \nSi hackean ese programa, tienen TODAS \nmis contraseñas de golpe. \n\nPrefiero escribirlas en un cuaderno o \nen un archivo de Excel en mi escritorio. \nAl menos eso no se puede hackear remotamente."`,
     question: "¿Tiene razón tu compañero?",
     options: [
       { text: "Sí, concentrar todo en un gestor es muy arriesgado", correct: false },
@@ -146,15 +101,11 @@ Al menos eso no se puede hackear remotamente."`,
     redFlags: ["Excel sin cifrado real", "Cuaderno físico robable", "Contraseñas visibles en texto plano", "Sin protección contra acceso físico"],
     points: 200,
   },
-  // WIFI PUBLICO
   {
     id: 3, category: "WiFi Público", icon: "📶", difficulty: "MEDIO",
     title: "Redes en la cafetería",
     description: "Estás en una cafetería y ves estas redes disponibles:",
-    content: `📶 CaféDelCentro_FREE         (Sin contraseña)
-📶 CaféDelCentro_WiFi         (Contraseña requerida)
-📶 FREE_INTERNET_FAST         (Sin contraseña)
-📶 iPhone de María            (Hotspot personal)`,
+    content: `📶 CaféDelCentro_FREE         (Sin contraseña)\n📶 CaféDelCentro_WiFi         (Contraseña requerida)\n📶 FREE_INTERNET_FAST         (Sin contraseña)\n📶 iPhone de María            (Hotspot personal)`,
     question: "Necesitas hacer una transferencia bancaria urgente. ¿Qué haces?",
     options: [
       { text: "Conéctate a CaféDelCentro_FREE para hacerla rápido", correct: false },
@@ -170,10 +121,7 @@ Al menos eso no se puede hackear remotamente."`,
     id: 13, category: "WiFi Público", icon: "📶", difficulty: "FÁCIL",
     title: "WiFi del aeropuerto",
     description: "Estás en el aeropuerto esperando tu vuelo y ves estas redes:",
-    content: `📶 Airport_Free_WiFi          (Sin contraseña)
-📶 Aeropuerto_Oficial_GYE     (Sin contraseña)  
-📶 AeroNet_Pasajeros          (Contraseña: en mostrador)
-📶 Free_Fast_Airport          (Sin contraseña)`,
+    content: `📶 Airport_Free_WiFi          (Sin contraseña)\n📶 Aeropuerto_Oficial_GYE     (Sin contraseña)  \n📶 AeroNet_Pasajeros          (Contraseña: en mostrador)\n📶 Free_Fast_Airport          (Sin contraseña)`,
     question: "¿Cuál es la forma más segura de conectarte?",
     options: [
       { text: "Airport_Free_WiFi, tiene el nombre más genérico y confiable", correct: false },
@@ -189,13 +137,7 @@ Al menos eso no se puede hackear remotamente."`,
     id: 14, category: "WiFi Público", icon: "📶", difficulty: "DIFÍCIL",
     title: "Ataque Evil Twin en hotel",
     description: "Estás en un hotel de negocios y ves en tu laptop:",
-    content: `📶 HotelPlaza_Guest           (Contraseña: plaza2024)
-📶 HotelPlaza_Guest           (Sin contraseña - más señal)
-
-Ambas redes tienen el mismo nombre pero 
-una tiene más señal y no requiere contraseña.
-Tu laptop se conecta automáticamente a la 
-de mayor señal.`,
+    content: `📶 HotelPlaza_Guest           (Contraseña: plaza2024)\n📶 HotelPlaza_Guest           (Sin contraseña - más señal)\n\nAmbas redes tienen el mismo nombre pero \nuna tiene más señal y no requiere contraseña.\nTu laptop se conecta automáticamente a la \nde mayor señal.`,
     question: "¿Qué está pasando y qué haces?",
     options: [
       { text: "Nada raro, el hotel tiene dos puntos de acceso", correct: false },
@@ -207,18 +149,11 @@ de mayor señal.`,
     redFlags: ["Mismo nombre, diferente seguridad", "Mayor señal sospechosa", "Conexión automática sin contraseña", "Red duplicada en mismo lugar"],
     points: 200,
   },
-  // INGENIERÍA SOCIAL
   {
     id: 4, category: "Ingeniería Social", icon: "🎭", difficulty: "MEDIO",
     title: "Llamada de 'Microsoft'",
     description: "Recibes una llamada inesperada:",
-    content: `"Buenas tardes, soy técnico de Microsoft. 
-Hemos detectado que su computadora está infectada 
-con un virus peligroso y envía datos a criminales.
-
-Para solucionarlo necesitamos que descargue este 
-programa y nos dé acceso remoto. Es gratis y urgente.
-¿Puede hacerlo ahora mismo?"`,
+    content: `"Buenas tardes, soy técnico de Microsoft. \nHemos detectado que su computadora está infectada \ncon un virus peligroso y envía datos a criminales.\n\nPara solucionarlo necesitamos que descargue este \nprograma y nos dé acceso remoto. Es gratis y urgente.\n¿Puede hacerlo ahora mismo?"`,
     question: "¿Qué haces?",
     options: [
       { text: "Seguir las instrucciones, Microsoft es confiable", correct: false },
@@ -234,15 +169,7 @@ programa y nos dé acceso remoto. Es gratis y urgente.
     id: 15, category: "Ingeniería Social", icon: "🎭", difficulty: "FÁCIL",
     title: "Técnico de mantenimiento",
     description: "Estás en la oficina y llega un hombre con uniforme:",
-    content: `Un hombre con camiseta azul y credencial 
-llega a tu oficina y dice:
-
-"Buenos días, soy pasante de mantenimiento 
-de sistemas. Tengo que revisar los equipos 
-del piso. ¿Me puede dejar pasar? Es rápido, 
-no le quitaré más de 5 minutos."
-
-No tienes aviso previo de ninguna visita técnica.`,
+    content: `Un hombre con camiseta azul y credencial \nllega a tu oficina y dice:\n\n"Buenos días, soy pasante de mantenimiento \nde sistemas. Tengo que revisar los equipos \ndel piso. ¿Me puede dejar pasar? Es rápido, \nno le quitaré más de 5 minutos."\n\nNo tienes aviso previo de ninguna visita técnica.`,
     question: "¿Qué haces?",
     options: [
       { text: "Lo dejas pasar, tiene uniforme y credencial", correct: false },
@@ -258,15 +185,7 @@ No tienes aviso previo de ninguna visita técnica.`,
     id: 16, category: "Ingeniería Social", icon: "🎭", difficulty: "DIFÍCIL",
     title: "El nuevo compañero de trabajo",
     description: "Un nuevo PMP se acerca a ti:",
-    content: `"Hola! Soy Tnte. Corella, empecé esta semana en 
-finanzas. Necesito acceder al sistema 
-urgente para un reporte del director pero 
-aún no me han dado mis credenciales.
-
-¿Me prestás tu usuario por 5 minutos? 
-Prometo que solo veo los reportes. 
-El director está esperando y no quiero 
-quedar mal en mi primera semana."`,
+    content: `"Hola! Soy Tnte. Corella, empecé esta semana en \nfinanzas. Necesito acceder al sistema \nurgente para un reporte del director pero \naún no me han dado mis credenciales.\n\n¿Me prestás tu usuario por 5 minutos? \nPrometo que solo veo los reportes. \nEl director está esperando y no quiero \nquedar mal en mi primera semana."`,
     question: "¿Qué haces?",
     options: [
       { text: "Le prestas el usuario, es solo 5 minutos", correct: false },
@@ -278,18 +197,11 @@ quedar mal en mi primera semana."`,
     redFlags: ["Solicitud de credenciales ajenas", "Urgencia y presión social", "Sin verificar identidad", "Acceso no autorizado al sistema"],
     points: 200,
   },
-  // REDES SOCIALES
   {
     id: 5, category: "Redes Sociales", icon: "📱", difficulty: "MEDIO",
     title: "Mensaje de un 'amigo'",
     description: "Tu amigo Carlos te manda este mensaje por WhatsApp:",
-    content: `Carlos 💬:
-"Oye! Estoy en un apuro, perdí mi billetera 
-de viaje. ¿Me puedes prestar $50 por DE UNA? 
-Te los devuelvo en cuanto llegue a casa.
-
-Es muy urgente, estoy varado. 
-Por favor no le digas nada a mis padres 😬"`,
+    content: `Carlos 💬:\n"Oye! Estoy en un apuro, perdí mi billetera \nde viaje. ¿Me puedes prestar $50 por DE UNA? \nTe los devuelvo en cuanto llegue a casa.\n\nEs muy urgente, estoy varado. \nPor favor no le digas nada a mis padres 😬"`,
     question: "¿Qué haces?",
     options: [
       { text: "Le envías el dinero inmediatamente, es tu amigo", correct: false },
@@ -305,14 +217,7 @@ Por favor no le digas nada a mis padres 😬"`,
     id: 17, category: "Redes Sociales", icon: "📱", difficulty: "FÁCIL",
     title: "Perfil duplicado en Facebook",
     description: "Recibes esta solicitud de amistad:",
-    content: `Nueva solicitud de amistad de:
-👤 María González (perfil con foto tuya conocida)
-
-Al revisar el perfil ves que:
-- Solo tiene 3 fotos (las mismas que el perfil real)
-- Se creó hace 2 semanas
-- Tiene 12 amigos en común contigo
-- El perfil real de María ya era tu amiga`,
+    content: `Nueva solicitud de amistad de:\n👤 María González (perfil con foto tuya conocida)\n\nAl revisar el perfil ves que:\n- Solo tiene 3 fotos (las mismas que el perfil real)\n- Se creó hace 2 semanas\n- Tiene 12 amigos en común contigo\n- El perfil real de María ya era tu amiga`,
     question: "¿Qué haces?",
     options: [
       { text: "Aceptas, María habrá creado una cuenta nueva", correct: false },
@@ -328,20 +233,7 @@ Al revisar el perfil ves que:
     id: 18, category: "Redes Sociales", icon: "📱", difficulty: "DIFÍCIL",
     title: "Reto viral sospechoso",
     description: "Un reto viral se vuelve popular en TikTok e Instagram:",
-    content: `🔥 RETO VIRAL: "10 cosas sobre mí" 🔥
-
-Comparte estas 10 cosas para que tus amigos 
-te conozcan mejor:
-1. Nombre completo
-2. Fecha de nacimiento
-3. Ciudad donde naciste
-4. Nombre de tu primera mascota
-5. Colegio donde estudiaste
-6. Nombre de tu mejor amigo de infancia
-7. Primer carro que tuviste
-8. Nombre de soltera de tu mamá
-9. Tu equipo de fútbol favorito
-10. Calle donde creciste`,
+    content: `🔥 RETO VIRAL: "10 cosas sobre mí" 🔥\n\nComparte estas 10 cosas para que tus amigos \nte conozcan mejor:\n1. Nombre completo\n2. Fecha de nacimiento\n3. Ciudad donde naciste\n4. Nombre de tu primera mascota\n5. Colegio donde estudiaste\n6. Nombre de tu mejor amigo de infancia\n7. Primer carro que tuviste\n8. Nombre de soltera de tu mamá\n9. Tu equipo de fútbol favorito\n10. Calle donde creciste`,
     question: "¿Participas en el reto?",
     options: [
       { text: "Sí, es divertido y todos tus amigos lo hacen", correct: false },
@@ -353,15 +245,11 @@ te conozcan mejor:
     redFlags: ["Preguntas de seguridad bancaria", "Reto diseñado para extraer datos", "Información personal pública", "Ingeniería social masiva"],
     points: 200,
   },
-  // ACTUALIZACIONES
   {
     id: 6, category: "Actualizaciones", icon: "🔄", difficulty: "FÁCIL",
     title: "Actualización pendiente",
     description: "Llevas 6 meses ignorando las actualizaciones. Tu amigo dice:",
-    content: `"Yo nunca actualizo el sistema, solo 
-sirve para hacer el equipo más lento. 
-Los hackers igual van a entrar si quieren, 
-las actualizaciones no sirven de nada."`,
+    content: `"Yo nunca actualizo el sistema, solo \nsirve para hacer el equipo más lento. \nLos hackers igual van a entrar si quieren, \nlas actualizaciones no sirven de nada."`,
     question: "¿Tu amigo tiene razón?",
     options: [
       { text: "Sí, las actualizaciones solo enlentecen el equipo", correct: false },
@@ -377,16 +265,7 @@ las actualizaciones no sirven de nada."`,
     id: 19, category: "Actualizaciones", icon: "🔄", difficulty: "MEDIO",
     title: "Notificación de actualización falsa",
     description: "Mientras navegas aparece este pop-up:",
-    content: `⚠️ ADVERTENCIA DE SEGURIDAD ⚠️
-
-Su versión de Chrome está DESACTUALIZADA
-y su equipo está EN RIESGO.
-
-Haga clic en ACTUALIZAR AHORA para 
-instalar la versión más reciente y 
-proteger su información.
-
-[ACTUALIZAR AHORA]    [Recordar después]`,
+    content: `⚠️ ADVERTENCIA DE SEGURIDAD ⚠️\n\nSu versión de Chrome está DESACTUALIZADA\ny su equipo está EN RIESGO.\n\nHaga clic en ACTUALIZAR AHORA para \ninstalar la versión más reciente y \nproteger su información.\n\n[ACTUALIZAR AHORA]    [Recordar después]`,
     question: "¿Qué haces?",
     options: [
       { text: "Haces clic en 'Actualizar ahora', necesitas estar seguro", correct: false },
@@ -398,21 +277,11 @@ proteger su información.
     redFlags: ["Pop-up en página web", "Urgencia de 'equipo en riesgo'", "Botón de descarga en sitio externo", "Diseño que imita alertas del sistema"],
     points: 150,
   },
-  // MALWARE
   {
     id: 7, category: "Malware", icon: "💀", difficulty: "DIFÍCIL",
     title: "Archivo adjunto del trabajo",
     description: "Recibes este email de tu jefe (o eso parece):",
-    content: `De: director@fae.mi1.ec
-Asunto: Revisar URGENTE - Contrato confidencial
-
-Hola,
-Necesito que revises este contrato antes de las 3pm.
-Es confidencial, no lo compartas con nadie todavía.
-
-[Contrato_Final_2024.pdf.exe] (2.3 MB)
-
-Gracias, Jorge Zumba - Director General`,
+    content: `De: director@fae.mi1.ec\nAsunto: Revisar URGENTE - Contrato confidencial\n\nHola,\nNecesito que revises este contrato antes de las 3pm.\nEs confidencial, no lo compartas con nadie todavía.\n\n[Contrato_Final_2024.pdf.exe] (2.3 MB)\n\nGracias, Jorge Zumba - Director General`,
     question: "¿Qué haces?",
     options: [
       { text: "Abrir el archivo, viene de tu jefe directo", correct: false },
@@ -428,13 +297,7 @@ Gracias, Jorge Zumba - Director General`,
     id: 20, category: "Malware", icon: "💀", difficulty: "FÁCIL",
     title: "USB encontrado en el parking",
     description: "Al llegar a la oficina encuentras esto:",
-    content: `En el estacionamiento de tu empresa encuentras 
-un USB con una etiqueta que dice:
-
-🏷️ "PASES 2026 - CONFIDENCIAL"
-
-Nadie está cerca. Es un USB normal que 
-cabe en cualquier computadora.`,
+    content: `En el estacionamiento de tu empresa encuentras \nun USB con una etiqueta que dice:\n\n🏷️ "PASES 2026 - CONFIDENCIAL"\n\nNadie está cerca. Es un USB normal que \ncabe en cualquier computadora.`,
     question: "¿Qué haces?",
     options: [
       { text: "Lo conectas para ver si puedes devolvérselo a alguien", correct: false },
@@ -450,19 +313,7 @@ cabe en cualquier computadora.`,
     id: 21, category: "Malware", icon: "💀", difficulty: "MEDIO",
     title: "Software gratuito sospechoso",
     description: "Necesitas editar un PDF y buscas en Google:",
-    content: `Resultados de búsqueda para "editar PDF gratis":
-
-🔍 edit-pdf-free-download.net
-   "Descarga GRATIS el mejor editor de PDF"
-   
-🔍 pdf-editor-pro-crack.com  
-   "Adobe Acrobat Pro GRATIS - Sin pagar"
-   
-🔍 acrobat.adobe.com
-   "Adobe Acrobat - Editor oficial de PDF"
-   
-🔍 ilovepdf.com
-   "Herramienta online gratuita para PDF"`,
+    content: `Resultados de búsqueda para "editar PDF gratis":\n\n🔍 edit-pdf-free-download.net\n   "Descarga GRATIS el mejor editor de PDF"\n   \n🔍 pdf-editor-pro-crack.com  \n   "Adobe Acrobat Pro GRATIS - Sin pagar"\n   \n🔍 acrobat.adobe.com\n   "Adobe Acrobat - Editor oficial de PDF"\n   \n🔍 ilovepdf.com\n   "Herramienta online gratuita para PDF"`,
     question: "¿Cuál usas?",
     options: [
       { text: "edit-pdf-free-download.net, es el primero y gratis", correct: false },
@@ -474,19 +325,11 @@ cabe en cualquier computadora.`,
     redFlags: ["Dominios sospechosos", "Software 'crackeado' gratis", "Descarga de ejecutables desconocidos", "Demasiado bueno para ser verdad"],
     points: 150,
   },
-  // 2FA
   {
     id: 8, category: "2FA", icon: "🔒", difficulty: "DIFÍCIL",
     title: "Código de verificación inesperado",
     description: "Recibes este SMS mientras estás en casa:",
-    content: `SMS recibido - 14:32:
-"Tu código de verificación de Gmail es: 847291
-No compartas este código con nadie."
-
-Segundos después alguien te llama:
-"Hola, soy del soporte de Google. Detectamos un 
-intento de hackeo. Necesito ese código que acabas 
-de recibir para proteger tu cuenta."`,
+    content: `SMS recibido - 14:32:\n"Tu código de verificación de Gmail es: 847291\nNo compartas este código con nadie."\n\nSegundos después alguien te llama:\n"Hola, soy del soporte de Google. Detectamos un \nintento de hackeo. Necesito ese código que acabas \nde recibir para proteger tu cuenta."`,
     question: "¿Qué haces?",
     options: [
       { text: "Das el código, es soporte oficial de Google", correct: false },
@@ -502,13 +345,7 @@ de recibir para proteger tu cuenta."`,
     id: 22, category: "2FA", icon: "🔒", difficulty: "FÁCIL",
     title: "¿Qué tipo de 2FA usar?",
     description: "Vas a activar el doble factor en tu banco. Te ofrecen estas opciones:",
-    content: `El banco te ofrece elegir tu método de 
-doble factor de autenticación:
-
-A) SMS al celular con código de 6 dígitos
-B) Email con código de verificación  
-C) App autenticadora (Google Authenticator)
-D) Pregunta de seguridad (nombre mascota, etc.)`,
+    content: `El banco te ofrece elegir tu método de \ndoble factor de autenticación:\n\nA) SMS al celular con código de 6 dígitos\nB) Email con código de verificación  \nC) App autenticadora (Google Authenticator)\nD) Pregunta de seguridad (nombre mascota, etc.)`,
     question: "¿Cuál es el método más seguro?",
     options: [
       { text: "SMS, es lo más cómodo y rápido", correct: false },
@@ -524,16 +361,7 @@ D) Pregunta de seguridad (nombre mascota, etc.)`,
     id: 23, category: "2FA", icon: "🔒", difficulty: "MEDIO",
     title: "SIM Swap en tu celular",
     description: "Un día tu celular deja de tener señal sin razón aparente:",
-    content: `Tu celular muestra "Sin servicio" desde 
-esta mañana. Llamas desde otro teléfono 
-a tu número y no entra.
-
-Luego recibes un email de tu banco:
-"Se ha realizado una transferencia de $500 
-desde su cuenta. Si no reconoce esta 
-operación contáctenos."
-
-Tu número sigue sin señal.`,
+    content: `Tu celular muestra "Sin servicio" desde \nesta mañana. Llamas desde otro teléfono \na tu número y no entra.\n\nLuego recibes un email de tu banco:\n"Se ha realizado una transferencia de $500 \ndesde su cuenta. Si no reconoce esta \noperación contáctenos."\n\nTu número sigue sin señal.`,
     question: "¿Qué está pasando y qué haces?",
     options: [
       { text: "Es un problema técnico del operador, esperas", correct: false },
@@ -608,29 +436,31 @@ export default function App() {
   };
 
   const nextScenario = () => {
-  if (currentIdx < filteredScenarios.length - 1) {
-    setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
-  } else {
-    saveScore(score, totalPoints, filter);
-    setScreen("results");
-  }
-};
+    if (currentIdx < filteredScenarios.length - 1) {
+      setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
+    } else {
+      saveScore(score, totalPoints, filter);
+      setScreen("results");
+    }
+  };
 
   const resetQuiz = () => {
     setCurrentIdx(0); setSelected(null); setShowResult(false);
     setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
   };
-const saveScore = async (finalScore, finalPoints, filterUsed) => {
-  const user = auth.currentUser;
-  if (!user) return;
-  await supabase.from("ranking").insert([{
-    username: user.displayName || user.email,
-    email: user.email,
-    score: finalScore,
-    points: finalPoints,
-    category: filterUsed,
-  }]);
-};
+
+  const saveScore = async (finalScore, finalPoints, filterUsed) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    await supabase.from("ranking").insert([{
+      username: user.displayName || user.email,
+      email: user.email,
+      score: finalScore,
+      points: finalPoints,
+      category: filterUsed,
+    }]);
+  };
+
   const askAI = async () => {
     if (!userQ.trim() || aiLoading) return;
     const question = userQ.trim();
@@ -639,18 +469,18 @@ const saveScore = async (finalScore, finalPoints, filterUsed) => {
     setAiLoading(true);
     try {
       const res = await fetch("/api/chat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1000,
-    system: `Eres CyberEscudo FAE AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
-    messages: [
-      ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
-      { role: "user", content: question },
-    ],
-  }),
-});
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: `Eres CyberEscudo FAE AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
+          messages: [
+            ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
+            { role: "user", content: question },
+          ],
+        }),
+      });
       const data = await res.json();
       const answer = data.content?.map(b => b.text || "").join("") || "No pude procesar tu pregunta.";
       setChatHistory(h => [...h, { role: "assistant", text: answer }]);
@@ -659,15 +489,17 @@ const saveScore = async (finalScore, finalPoints, filterUsed) => {
     }
     setAiLoading(false);
   };
-const loadRanking = async () => {
-  const { data } = await supabase
-    .from("ranking")
-    .select("*")
-    .order("points", { ascending: false })
-    .limit(10);
-  setRankingData(data || []);
-  setScreen("ranking");
-};
+
+  const loadRanking = async () => {
+    const { data } = await supabase
+      .from("ranking")
+      .select("*")
+      .order("points", { ascending: false })
+      .limit(10);
+    setRankingData(data || []);
+    setScreen("ranking");
+  };
+
   const handleLogout = async () => {
     await signOut(auth);
     setLoggedIn(false);
@@ -677,7 +509,6 @@ const loadRanking = async () => {
 
   if (!loggedIn) return <Login onLogin={() => setLoggedIn(true)} />;
 
-  // PALETA VERDE Y GRIS CLARO
   const C = {
     green: "#2e7d32",
     greenLight: "#4caf50",
@@ -708,6 +539,7 @@ const loadRanking = async () => {
   const diffColor = (d) => d === "FÁCIL" ? "#2e7d32" : d === "MEDIO" ? "#f57f17" : "#c62828";
   const diffBg = (d) => d === "FÁCIL" ? "#e8f5e9" : d === "MEDIO" ? "#fff8e1" : "#ffebee";
 
+  // ===== PANTALLA: HOME =====
   if (screen === "home") return (
     <div style={wrap}>
       <div style={cont}>
@@ -764,6 +596,7 @@ const loadRanking = async () => {
     </div>
   );
 
+  // ===== PANTALLA: SELECTOR =====
   if (screen === "selector") return (
     <div style={wrap}>
       <div style={cont}>
@@ -787,6 +620,7 @@ const loadRanking = async () => {
     </div>
   );
 
+  // ===== PANTALLA: QUIZ =====
   if (screen === "quiz" && scenario) {
     const progress = ((currentIdx) / filteredScenarios.length) * 100;
     const isCorrect = showResult && scenario.options[selected]?.correct;
@@ -867,42 +701,49 @@ const loadRanking = async () => {
       </div>
     );
   }
-if (screen === "ranking") return (
-  <div style={wrap}>
-    <div style={cont}>
-      <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
-        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
-        <div style={{ width: 80 }} />
-      </div>
-      <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-        {rankingData.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
-            <p>Aún no hay puntajes registrados.</p>
-            <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
-          </div>
-        ) : (
-          rankingData.map((entry, idx) => (
-            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
-              <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
-                {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
-                <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
-                <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
-              </div>
+
+  // ===== PANTALLA: RANKING =====
+  if (screen === "ranking") return (
+    <div style={wrap}>
+      <div style={cont}>
+        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
+          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
+          <div style={{ width: 80 }} />
+        </div>
+        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+          {rankingData.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
+              <p>Aún no hay puntajes registrados.</p>
+              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
             </div>
-          ))
-        )}
+          ) : (
+            rankingData.map((entry, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
+                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
+                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Jugar Ahora</button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+
+  // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
     const pct = (score / filteredScenarios.length) * 100;
     const level = pct >= 75 ? { label: "EXPERTO", color: C.green, bg: C.greenPale, emoji: "🏆" } : pct >= 50 ? { label: "INTERMEDIO", color: "#f57f17", bg: "#fff8e1", emoji: "🎯" } : { label: "PRINCIPIANTE", color: C.red, bg: "#ffebee", emoji: "⚠️" };
@@ -950,6 +791,7 @@ if (screen === "ranking") return (
     );
   }
 
+  // ===== PANTALLA: CHAT =====
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
   return (
     <div style={{ ...wrap, display: "flex", flexDirection: "column", height: "100vh" }}>
