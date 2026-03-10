@@ -436,13 +436,15 @@ export default function App() {
   };
 
   const nextScenario = () => {
-    if (currentIdx < filteredScenarios.length - 1) {
-      setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
-    } else {
-      saveScore(score, totalPoints, filter);
-      setScreen("results");
-    }
-  };
+  if (currentIdx < filteredScenarios.length - 1) {
+    setCurrentIdx(i => i + 1);
+    setSelected(null);
+    setShowResult(false);
+  } else {
+    saveScore(score, totalPoints, filter);
+    setScreen("results");
+  }
+};
 
   const resetQuiz = () => {
     setCurrentIdx(0); setSelected(null); setShowResult(false);
@@ -820,8 +822,7 @@ export default function App() {
             <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 Consultar IA</button>
-            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
-            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
+            <button style={btn("ghost")} onClick={loadRanking}>Ver Ranking</button>            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
         </div>
       </div>
