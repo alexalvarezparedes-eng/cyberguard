@@ -504,14 +504,29 @@ export default function App() {
   };
 
   const loadRanking = async () => {
-    const { data } = await supabase
+  console.log("Cargando ranking...");
+  try {
+    const { data, error } = await supabase
       .from("ranking")
       .select("*")
       .order("points", { ascending: false })
       .limit(10);
-    setRankingData(data || []);
-    setScreen("ranking");
-  };
+    
+    console.log("Data:", data);
+    console.log("Error:", error);
+    
+    if (error) {
+      console.error("Error Supabase:", error);
+      setRankingData([]);
+    } else {
+      setRankingData(data || []);
+    }
+  } catch (e) {
+    console.error("Excepción:", e);
+    setRankingData([]);
+  }
+  setScreen("ranking");
+};
 
   const handleLogout = async () => {
     await signOut(auth);
