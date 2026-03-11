@@ -693,7 +693,7 @@ export default function App() {
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
                 <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < filteredScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
-                <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
+                
               </div>
             )}
           </div>
@@ -782,7 +782,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
-            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
+            
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
         </div>
