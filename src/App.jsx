@@ -415,7 +415,11 @@ export default function App() {
   }, []);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
-
+  useEffect(() => {
+  if (screen === "results") {
+    saveScore(score, totalPoints, filter);
+  }
+}, [screen]);
   const scenario = filteredScenarios[currentIdx];
 
   const handleAnswer = (idx) => {
@@ -441,7 +445,6 @@ export default function App() {
     setSelected(null);
     setShowResult(false);
   } else {
-    saveScore(score, totalPoints, filter);
     setScreen("results");
   }
 };
@@ -722,7 +725,12 @@ export default function App() {
             )}
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
-                <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < filteredScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
+                <button style={{ ...btn("primary"), flex: 1 }} onClick={() => {
+  saveScore(score, totalPoints, filter);
+  setScreen("results");
+}}>
+  VER RESULTADOS
+</button>
                 <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
               </div>
             )}
