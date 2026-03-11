@@ -415,11 +415,7 @@ export default function App() {
   }, []);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
-  useEffect(() => {
-  if (screen === "results") {
-    saveScore(score, totalPoints, filter);
-  }
-}, [screen]);
+
   const scenario = filteredScenarios[currentIdx];
 
   const handleAnswer = (idx) => {
@@ -440,14 +436,13 @@ export default function App() {
   };
 
   const nextScenario = () => {
-  if (currentIdx < filteredScenarios.length - 1) {
-    setCurrentIdx(i => i + 1);
-    setSelected(null);
-    setShowResult(false);
-  } else {
-    setScreen("results");
-  }
-};
+    if (currentIdx < filteredScenarios.length - 1) {
+      setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
+    } else {
+      saveScore(score, totalPoints, filter);
+      setScreen("results");
+    }
+  };
 
   const resetQuiz = () => {
     setCurrentIdx(0); setSelected(null); setShowResult(false);
@@ -455,30 +450,17 @@ export default function App() {
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
-  console.log("=== GUARDANDO PUNTAJE ===", finalScore, finalPoints, filterUsed);
-  const user = auth.currentUser;
-  console.log("Usuario actual:", user);
-  
-  if (!user) {
-    console.log("ERROR: No hay usuario autenticado");
-    return;
-  }
-  
-  try {
-    const { data, error } = await supabase.from("ranking").insert([{
+    const user = auth.currentUser;
+    if (!user) return;
+    await supabase.from("ranking").insert([{
       username: user.displayName || user.email,
       email: user.email,
       score: finalScore,
       points: finalPoints,
       category: filterUsed,
     }]);
-    
-    console.log("Respuesta Supabase - data:", data);
-    console.log("Respuesta Supabase - error:", error);
-  } catch (e) {
-    console.error("Excepción:", e);
-  }
-};
+  };
+
   const askAI = async () => {
     if (!userQ.trim() || aiLoading) return;
     const question = userQ.trim();
@@ -509,29 +491,14 @@ export default function App() {
   };
 
   const loadRanking = async () => {
-  console.log("Cargando ranking...");
-  try {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("ranking")
       .select("*")
       .order("points", { ascending: false })
       .limit(10);
-    
-    console.log("Data:", data);
-    console.log("Error:", error);
-    
-    if (error) {
-      console.error("Error Supabase:", error);
-      setRankingData([]);
-    } else {
-      setRankingData(data || []);
-    }
-  } catch (e) {
-    console.error("Excepción:", e);
-    setRankingData([]);
-  }
-  setScreen("ranking");
-};
+    setRankingData(data || []);
+    setScreen("ranking");
+  };
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -725,12 +692,7 @@ export default function App() {
             )}
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
-                <button style={{ ...btn("primary"), flex: 1 }} onClick={() => {
-  saveScore(score, totalPoints, filter);
-  setScreen("results");
-}}>
-  VER RESULTADOS
-</button>
+                <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < filteredScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
                 <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
               </div>
             )}
@@ -739,56 +701,47 @@ export default function App() {
       </div>
     );
   }
-  // ===== PANTALLA: RANKING =====
 
+  // ===== PANTALLA: RANKING =====
   if (screen === "ranking") return (
-  <div style={wrap}>
-    <div style={cont}>
-      <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
-        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>Top 10 Ranking</h2>
-        <div style={{ width: 80 }} />
-      </div>
-      <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-        {rankingData.map((entry, idx) => {
-          const nombre = entry.username ? entry.username.split("@")[0] : "Anonimo";
-          const puntos = entry.points ? entry.points : 0;
-          const correctas = entry.score ? entry.score : 0;
-          const medalla = idx === 0 ? "1" : idx === 1 ? "2" : idx === 2 ? "3" : String(idx + 1);
-          return (
-            <div
-              key={entry.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                padding: "14px 20px",
-                borderBottom: `1px solid ${C.border}`,
-                background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel
-              }}
-            >
-              <div style={{ fontSize: 20, width: 36, textAlign: "center", fontWeight: 900, color: C.green }}>
-                {medalla}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{nombre}</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>{puntos} pts</div>
-                <div style={{ color: C.dim, fontSize: 11 }}>{correctas} correctas</div>
-              </div>
+    <div style={wrap}>
+      <div style={cont}>
+        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
+          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
+          <div style={{ width: 80 }} />
+        </div>
+        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+          {rankingData.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
+              <p>Aún no hay puntajes registrados.</p>
+              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
             </div>
-          );
-        })}
-      </div>
-      <div style={{ textAlign: "center", marginTop: 20 }}>
-        <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>
-          Jugar Ahora
-        </button>
+          ) : (
+            rankingData.map((entry, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
+                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
+                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Jugar Ahora</button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
@@ -830,7 +783,8 @@ export default function App() {
             <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 Consultar IA</button>
-            <button style={btn("ghost")} onClick={loadRanking}>Ver Ranking</button>            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
+            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
+            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
         </div>
       </div>
