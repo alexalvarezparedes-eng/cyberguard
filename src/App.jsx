@@ -706,7 +706,7 @@ export default function App() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
-            <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>▶ Iniciar Entrenamiento</button>
+            <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimerActive(true); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
           </div>
@@ -723,7 +723,7 @@ export default function App() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 8 }}>
           {SCENARIOS.map(s => (
-            <button key={s.id} onClick={() => { const q = buildQuiz(s.category); setQuizScenarios(q); resetCounters(); setFilter(s.category); setActiveBlock(s.category); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}
+            <button key={s.id} onClick={() => { const q = buildQuiz(s.category); setQuizScenarios(q); resetCounters(); setFilter(s.category); setActiveBlock(s.category); setTimerActive(true); setScreen("quiz"); }}
               style={{ ...card, padding: "12px 10px", cursor: "pointer", textAlign: "left", border: `1px solid ${C.border}` }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                 <span style={{ fontSize: 20 }}>{s.icon}</span>
@@ -751,10 +751,12 @@ export default function App() {
             return (
               <button key={block.id}
                 onClick={() => {
-                  resetQuiz();
+                  const q = buildQuiz(block.id);
+                  setQuizScenarios(q);
+                  resetCounters();
                   setFilter(block.id);
                   setActiveBlock(block.id);
-                  setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100);
+                  setTimerActive(true);
                   setScreen("quiz");
                 }}
                 style={{ background: block.bg, border: `2px solid ${block.color}`, borderRadius: 14, padding: "20px 14px", cursor: "pointer", textAlign: "center", transition: "transform 0.15s" }}>
@@ -767,10 +769,12 @@ export default function App() {
         </div>
         <button
           onClick={() => {
-            resetQuiz();
+            const q = buildQuiz("TODOS");
+            setQuizScenarios(q);
+            resetCounters();
             setFilter("TODOS");
             setActiveBlock("TODOS");
-            setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100);
+            setTimerActive(true);
             setScreen("quiz");
           }}
           style={{ width: "100%", background: "linear-gradient(135deg,#f57f17,#ffa726)", border: "none", borderRadius: 14, padding: "20px", cursor: "pointer", textAlign: "center" }}>
@@ -908,7 +912,7 @@ export default function App() {
           )}
         </div>
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>▶ Jugar Ahora</button>
+          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimerActive(true); setScreen("quiz"); }}>▶ Jugar Ahora</button>
         </div>
       </div>
     </div>
@@ -951,7 +955,7 @@ export default function App() {
             </div>
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>↺ Repetir</button>
+            <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setTimerActive(true); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => { resetQuiz(); setScreen("selector"); }}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
