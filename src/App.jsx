@@ -525,11 +525,17 @@ export default function App() {
     }
   };
 
-  const resetQuiz = () => {
+  const resetCounters = () => {
     clearInterval(timerRef.current);
     setCurrentIdx(0); setSelected(null); setShowResult(false);
     setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
-    setTimeLeft(40); setTimerActive(false); setActiveBlock(null);
+    setTimeLeft(40); setTimerActive(false);
+  };
+
+  const resetQuiz = () => {
+    resetCounters();
+    setQuizScenarios([]);
+    setActiveBlock(null);
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
@@ -700,7 +706,7 @@ export default function App() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
-            <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
+            <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>▶ Iniciar Entrenamiento</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
           </div>
@@ -717,7 +723,7 @@ export default function App() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 8 }}>
           {SCENARIOS.map(s => (
-            <button key={s.id} onClick={() => { resetQuiz(); setFilter(s.category); setCurrentIdx(0); setScreen("quiz"); }}
+            <button key={s.id} onClick={() => { const q = buildQuiz(s.category); setQuizScenarios(q); resetCounters(); setFilter(s.category); setActiveBlock(s.category); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}
               style={{ ...card, padding: "12px 10px", cursor: "pointer", textAlign: "left", border: `1px solid ${C.border}` }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                 <span style={{ fontSize: 20 }}>{s.icon}</span>
@@ -902,7 +908,7 @@ export default function App() {
           )}
         </div>
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 50); setScreen("quiz"); }}>▶ Jugar Ahora</button>
+          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>▶ Jugar Ahora</button>
         </div>
       </div>
     </div>
@@ -945,8 +951,8 @@ export default function App() {
             </div>
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetQuiz(); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 50); setScreen("quiz"); }}>↺ Repetir</button>
-            <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
+            <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setScreen("quiz"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); }}>↺ Repetir</button>
+            <button style={btn("ghost")} onClick={() => { resetQuiz(); setScreen("selector"); }}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
