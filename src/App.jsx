@@ -421,7 +421,7 @@ export default function App() {
   const [tempAvatar, setTempAvatar] = useState(null);
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [timeLeft, setTimeLeft] = useState(40);
   const [timerActive, setTimerActive] = useState(false);
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
@@ -454,11 +454,15 @@ export default function App() {
   ];
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
-  const getFilteredScenarios = (f) => {
+  const [quizScenarios, setQuizScenarios] = useState([]);
+
+  const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
-    return shuffle(base).map(s => ({ ...s, options: shuffle([...s.options]) }));
+    return shuffle([...base]).map(s => ({ ...s, options: shuffle([...s.options]) }));
   };
-  const filteredScenarios = getFilteredScenarios(filter);
+
+  // filteredScenarios para compatibilidad con resultados
+  const filteredScenarios = quizScenarios.length > 0 ? quizScenarios : SCENARIOS;
 
   useEffect(() => {
     const iv = setInterval(() => setTipIdx(i => (i + 1) % TIPS.length), 5000);
@@ -486,7 +490,7 @@ export default function App() {
     return () => clearInterval(timerRef.current);
   }, [timerActive, showResult, currentIdx]);
 
-  const scenario = filteredScenarios[currentIdx];
+  const scenario = quizScenarios[currentIdx];
 
   const handleAnswer = (idx) => {
     if (showResult) return;
@@ -512,7 +516,7 @@ export default function App() {
       setCurrentIdx(i => i + 1);
       setSelected(null);
       setShowResult(false);
-      setTimeLeft(15);
+      setTimeLeft(40);
       setTimerActive(true);
     } else {
       clearInterval(timerRef.current);
@@ -525,7 +529,7 @@ export default function App() {
     clearInterval(timerRef.current);
     setCurrentIdx(0); setSelected(null); setShowResult(false);
     setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
-    setTimeLeft(15); setTimerActive(false); setActiveBlock(null);
+    setTimeLeft(40); setTimerActive(false); setActiveBlock(null);
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
@@ -696,7 +700,7 @@ export default function App() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
-            <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
+            <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
           </div>
@@ -744,7 +748,7 @@ export default function App() {
                   resetQuiz();
                   setFilter(block.id);
                   setActiveBlock(block.id);
-                  setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100);
+                  setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100);
                   setScreen("quiz");
                 }}
                 style={{ background: block.bg, border: `2px solid ${block.color}`, borderRadius: 14, padding: "20px 14px", cursor: "pointer", textAlign: "center", transition: "transform 0.15s" }}>
@@ -760,7 +764,7 @@ export default function App() {
             resetQuiz();
             setFilter("TODOS");
             setActiveBlock("TODOS");
-            setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100);
+            setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 100);
             setScreen("quiz");
           }}
           style={{ width: "100%", background: "linear-gradient(135deg,#f57f17,#ffa726)", border: "none", borderRadius: 14, padding: "20px", cursor: "pointer", textAlign: "center" }}>
@@ -799,9 +803,9 @@ export default function App() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 4, width: `${(timeLeft / 15) * 100}%`, background: timeLeft > 8 ? "#4caf50" : timeLeft > 4 ? "#ff9800" : "#f44336", transition: "width 1s linear, background 0.3s" }} />
+              <div style={{ height: "100%", borderRadius: 4, width: `${(timeLeft / 40) * 100}%`, background: timeLeft > 20 ? "#4caf50" : timeLeft > 10 ? "#ff9800" : "#f44336", transition: "width 1s linear, background 0.3s" }} />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 900, color: timeLeft > 8 ? C.green : timeLeft > 4 ? "#e65100" : C.red, minWidth: 28, textAlign: "right" }}>{timeLeft}s</div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: timeLeft > 20 ? C.green : timeLeft > 10 ? "#e65100" : C.red, minWidth: 28, textAlign: "right" }}>{timeLeft}s</div>
           </div>
           <div style={{ ...card, padding: "20px" }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
@@ -898,7 +902,7 @@ export default function App() {
           )}
         </div>
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Jugar Ahora</button>
+          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 50); setScreen("quiz"); }}>▶ Jugar Ahora</button>
         </div>
       </div>
     </div>
@@ -941,7 +945,7 @@ export default function App() {
             </div>
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
+            <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetQuiz(); setTimeout(() => { setTimeLeft(40); setTimerActive(true); }, 50); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
