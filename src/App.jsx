@@ -405,7 +405,28 @@ export default function App() {
   const [tipIdx, setTipIdx] = useState(0);
   const [showBadge, setShowBadge] = useState(false);
   const [rankingData, setRankingData] = useState([]);
+  const [avatar, setAvatar] = useState(null);
+  const [avatarName, setAvatarName] = useState("");
+  const [showAvatar, setShowAvatar] = useState(false);
+  const [tempAvatar, setTempAvatar] = useState(null);
+  const [tempName, setTempName] = useState("");
+  const [nameError, setNameError] = useState(false);
   const chatEndRef = useRef(null);
+
+  const AVATARS = [
+    { id: 1, emoji: "🦅", name: "Águila Cyber", color: "#1565c0" },
+    { id: 2, emoji: "🦉", name: "Búho Hacker", color: "#4a148c" },
+    { id: 3, emoji: "🐺", name: "Lobo Digital", color: "#1b5e20" },
+    { id: 4, emoji: "🦊", name: "Zorro Tech", color: "#e65100" },
+    { id: 5, emoji: "🐯", name: "Tigre Firewall", color: "#b71c1c" },
+    { id: 6, emoji: "🦁", name: "León Encriptado", color: "#f57f17" },
+    { id: 7, emoji: "🐉", name: "Dragón Binario", color: "#880e4f" },
+    { id: 8, emoji: "🦈", name: "Tiburón Red", color: "#006064" },
+    { id: 9, emoji: "🦅", name: "Halcón OSINT", color: "#37474f" },
+    { id: 10, emoji: "🐻", name: "Oso Forense", color: "#3e2723" },
+    { id: 11, emoji: "🦋", name: "Mariposa Stealth", color: "#880e4f" },
+    { id: 12, emoji: "🐬", name: "Delfín Pentester", color: "#0277bd" },
+  ];
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
   const filteredScenarios = filter === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === filter);
@@ -453,12 +474,14 @@ export default function App() {
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
     const user = auth.currentUser;
     if (!user) return;
+    const displayName = avatarName ? avatarName : (user.displayName || user.email);
     await supabase.from("ranking").insert([{
-      username: user.displayName || user.email,
+      username: displayName,
       email: user.email,
       score: finalScore,
       points: finalPoints,
       category: filterUsed,
+      avatar: avatar ? avatar.emoji : "",
     }]);
   };
 
@@ -504,11 +527,57 @@ export default function App() {
   const handleLogout = async () => {
     await signOut(auth);
     setLoggedIn(false);
+    setAvatar(null);
+    setAvatarName("");
+    setShowAvatar(false);
+    setTempAvatar(null);
+    setTempName("");
+    setNameError(false);
     resetQuiz();
     setScreen("home");
   };
 
-  if (!loggedIn) return <Login onLogin={() => setLoggedIn(true)} />;
+  if (!loggedIn) return <Login onLogin={() => { setLoggedIn(true); setShowAvatar(true); }} />;
+
+  // ===== PANTALLA: SELECCIÓN DE AVATAR =====
+  if (showAvatar) {
+    return (
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0a1628,#0d2d6b,#071530)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div style={{ maxWidth: 500, width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: 32, backdropFilter: "blur(10px)" }}>
+          <div style={{ textAlign: "center", marginBottom: 24 }}>
+            <div style={{ fontSize: 48, marginBottom: 8 }}>🎮</div>
+            <h2 style={{ color: "#f5d060", fontSize: 22, fontWeight: 900, margin: "0 0 6px", letterSpacing: 2 }}>ELIGE TU AVATAR</h2>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, margin: 0 }}>Selecciona tu identidad en el campo de batalla digital</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 24 }}>
+            {AVATARS.map(av => (
+              <button key={av.id} onClick={() => setTempAvatar(av)}
+                style={{ background: tempAvatar?.id === av.id ? av.color : "rgba(255,255,255,0.05)", border: tempAvatar?.id === av.id ? "2px solid #f5d060" : "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "12px 6px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", transform: tempAvatar?.id === av.id ? "scale(1.08)" : "scale(1)" }}>
+                <div style={{ fontSize: 28, marginBottom: 4 }}>{av.emoji}</div>
+                <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 9, fontWeight: 700, lineHeight: 1.2 }}>{av.name}</div>
+              </button>
+            ))}
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 8, letterSpacing: 1 }}>NOMBRE DE COMBATE</label>
+            <input value={tempName} onChange={e => { setTempName(e.target.value); setNameError(false); }}
+              placeholder="Ej: CyberHawk_21..."
+              maxLength={20}
+              style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: nameError ? "1.5px solid #f44336" : "1.5px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "11px 14px", color: "white", fontSize: 14, outline: "none", boxSizing: "border-box" }}/>
+            {nameError && <div style={{ color: "#f44336", fontSize: 11, marginTop: 4 }}>Ingresa un nombre y selecciona un avatar</div>}
+          </div>
+          <button onClick={() => {
+            if (!tempName.trim() || !tempAvatar) { setNameError(true); return; }
+            setAvatar(tempAvatar);
+            setAvatarName(tempName.trim());
+            setShowAvatar(false);
+          }} style={{ width: "100%", background: "linear-gradient(135deg,#c8920a,#f5d060)", border: "none", borderRadius: 10, padding: "13px", color: "#0a1628", fontSize: 15, fontWeight: 900, cursor: "pointer", letterSpacing: 2 }}>
+            ▶ ENTRAR AL COMBATE
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const C = {
     green: "#2e7d32",
@@ -545,7 +614,13 @@ export default function App() {
     <div style={wrap}>
       <div style={cont}>
         <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 12, marginBottom: 8 }}>
-          <button style={btn("dim")} onClick={handleLogout}>🔓 Cerrar sesión</button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {avatar && <div style={{ display: "flex", alignItems: "center", gap: 6, background: avatar.color, borderRadius: 20, padding: "4px 12px" }}>
+              <span style={{ fontSize: 18 }}>{avatar.emoji}</span>
+              <span style={{ color: "white", fontSize: 12, fontWeight: 700 }}>{avatarName}</span>
+            </div>}
+            <button style={btn("dim")} onClick={handleLogout}>🔓 Cerrar sesión</button>
+          </div>
         </div>
         <div style={{ textAlign: "center", padding: "16px 0 24px" }}>
           <img src={SELLO_JECIB} alt="Sello JECIB FAE" style={{ width: 130, height: 130, objectFit: "contain", marginBottom: 12 }} />
@@ -693,7 +768,7 @@ export default function App() {
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
                 <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < filteredScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
-                
+                <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
               </div>
             )}
           </div>
@@ -725,7 +800,10 @@ export default function App() {
                   {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
+                  <span style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
+                </div>
                   <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
@@ -782,7 +860,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { resetQuiz(); setScreen("quiz"); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Otra Categoría</button>
-            
+            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
           </div>
         </div>
