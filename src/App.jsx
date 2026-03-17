@@ -676,6 +676,11 @@ export default function App() {
   const diffColor = (d) => d === "FÁCIL" ? "#2e7d32" : d === "MEDIO" ? "#f57f17" : "#c62828";
   const diffBg = (d) => d === "FÁCIL" ? "#e8f5e9" : d === "MEDIO" ? "#fff8e1" : "#ffebee";
 
+  // Seguridad: si screen es home, limpiar quiz
+  if (screen === "home" && quizScenarios.length > 0) {
+    setQuizScenarios([]);
+  }
+
   // ===== PANTALLA: HOME =====
   if (screen === "home") return (
     <div style={wrap}>
