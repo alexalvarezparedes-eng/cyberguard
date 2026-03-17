@@ -1,4 +1,14 @@
 import { useState, useEffect, useRef } from "react";
+
+// Aleatorizar array
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
 import Login from "./Login";
 import { auth } from "./firebase";
 import { signOut } from "firebase/auth";
@@ -411,7 +421,22 @@ export default function App() {
   const [tempAvatar, setTempAvatar] = useState(null);
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [timerActive, setTimerActive] = useState(false);
+  const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
+  const timerRef = useRef(null);
+
+  const BLOCKS = [
+    { id: "Phishing", name: "Phishing", icon: "🎣", color: "#c62828", bg: "#ffebee" },
+    { id: "Contraseñas", name: "Contraseñas", icon: "🔐", color: "#1565c0", bg: "#e3f2fd" },
+    { id: "WiFi Público", name: "WiFi Público", icon: "📶", color: "#2e7d32", bg: "#e8f5e9" },
+    { id: "Ingeniería Social", name: "Ingeniería Social", icon: "🎭", color: "#6a1b9a", bg: "#f3e5f5" },
+    { id: "Redes Sociales", name: "Redes Sociales", icon: "📱", color: "#e65100", bg: "#fff3e0" },
+    { id: "Actualizaciones", name: "Actualizaciones", icon: "🔄", color: "#00695c", bg: "#e0f2f1" },
+    { id: "Malware", name: "Malware", icon: "💀", color: "#b71c1c", bg: "#ffebee" },
+    { id: "2FA", name: "2FA", icon: "🔒", color: "#4527a0", bg: "#ede7f6" },
+  ];
 
   const AVATARS = [
     { id: 1, emoji: "🦅", name: "Águila Cyber", color: "#1565c0" },
@@ -429,7 +454,11 @@ export default function App() {
   ];
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
-  const filteredScenarios = filter === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === filter);
+  const getFilteredScenarios = (f) => {
+    const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
+    return shuffle(base).map(s => ({ ...s, options: shuffle([...s.options]) }));
+  };
+  const filteredScenarios = getFilteredScenarios(filter);
 
   useEffect(() => {
     const iv = setInterval(() => setTipIdx(i => (i + 1) % TIPS.length), 5000);
@@ -438,10 +467,31 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
+  // Temporizador 15 segundos
+  useEffect(() => {
+    if (timerActive && !showResult) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(t => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            setTimerActive(false);
+            setShowResult(true);
+            setSelected(null);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [timerActive, showResult, currentIdx]);
+
   const scenario = filteredScenarios[currentIdx];
 
   const handleAnswer = (idx) => {
     if (showResult) return;
+    clearInterval(timerRef.current);
+    setTimerActive(false);
     setSelected(idx);
     setShowResult(true);
     const correct = scenario.options[idx].correct;
@@ -459,16 +509,23 @@ export default function App() {
 
   const nextScenario = () => {
     if (currentIdx < filteredScenarios.length - 1) {
-      setCurrentIdx(i => i + 1); setSelected(null); setShowResult(false);
+      setCurrentIdx(i => i + 1);
+      setSelected(null);
+      setShowResult(false);
+      setTimeLeft(15);
+      setTimerActive(true);
     } else {
-      saveScore(score, totalPoints, filter);
+      clearInterval(timerRef.current);
+      saveScore(score, totalPoints, activeBlock || filter);
       setScreen("results");
     }
   };
 
   const resetQuiz = () => {
+    clearInterval(timerRef.current);
     setCurrentIdx(0); setSelected(null); setShowResult(false);
     setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
+    setTimeLeft(15); setTimerActive(false); setActiveBlock(null);
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
@@ -639,7 +696,7 @@ export default function App() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
-            <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
+            <button style={btn("primary")} onClick={() => { resetQuiz(); setFilter("TODOS"); setActiveBlock("TODOS"); setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100); setScreen("quiz"); }}>▶ Iniciar Entrenamiento</button>
             <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
           </div>
@@ -671,26 +728,46 @@ export default function App() {
     </div>
   );
 
-  // ===== PANTALLA: SELECTOR =====
+  // ===== PANTALLA: BLOQUES =====
   if (screen === "selector") return (
     <div style={wrap}>
       <div style={cont}>
         <div style={{ paddingTop: 20, marginBottom: 20 }}><button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button></div>
-        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Seleccionar Categoría</h2>
-        <p style={{ color: C.dim, fontSize: 12, marginBottom: 20 }}>Elige el área en la que quieres entrenar</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 12 }}>
-          {CATEGORIES.map(cat => {
-            const s = cat === "TODOS" ? SCENARIOS : SCENARIOS.filter(x => x.category === cat);
+        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Escoge tu Bloque</h2>
+        <p style={{ color: C.dim, fontSize: 12, marginBottom: 20 }}>Cada bloque tiene preguntas aleatorias · 15 segundos por pregunta</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12, marginBottom: 16 }}>
+          {BLOCKS.map(block => {
+            const count = SCENARIOS.filter(s => s.category === block.id).length;
             return (
-              <button key={cat} onClick={() => { resetQuiz(); setFilter(cat); setScreen("quiz"); }}
-                style={{ ...card, textAlign: "left", padding: "18px", cursor: "pointer", border: `1.5px solid ${C.border}` }}>
-                <div style={{ fontSize: 24, marginBottom: 8 }}>{s.map(x => x.icon).slice(0, 3).join(" ")}</div>
-                <div style={{ color: C.green, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{cat}</div>
-                <div style={{ color: C.dim, fontSize: 11 }}>{s.length} escenario{s.length > 1 ? "s" : ""}</div>
+              <button key={block.id}
+                onClick={() => {
+                  resetQuiz();
+                  setFilter(block.id);
+                  setActiveBlock(block.id);
+                  setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100);
+                  setScreen("quiz");
+                }}
+                style={{ background: block.bg, border: `2px solid ${block.color}`, borderRadius: 14, padding: "20px 14px", cursor: "pointer", textAlign: "center", transition: "transform 0.15s" }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>{block.icon}</div>
+                <div style={{ color: block.color, fontSize: 13, fontWeight: 900, marginBottom: 4 }}>{block.name}</div>
+                <div style={{ color: "#757575", fontSize: 11 }}>{count} preguntas</div>
               </button>
             );
           })}
         </div>
+        <button
+          onClick={() => {
+            resetQuiz();
+            setFilter("TODOS");
+            setActiveBlock("TODOS");
+            setTimeout(() => { setTimeLeft(15); setTimerActive(true); }, 100);
+            setScreen("quiz");
+          }}
+          style={{ width: "100%", background: "linear-gradient(135deg,#f57f17,#ffa726)", border: "none", borderRadius: 14, padding: "20px", cursor: "pointer", textAlign: "center" }}>
+          <div style={{ fontSize: 36, marginBottom: 6 }}>🏆</div>
+          <div style={{ color: "#fff", fontSize: 15, fontWeight: 900, marginBottom: 4 }}>TODAS LAS CATEGORÍAS</div>
+          <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}>{SCENARIOS.length} preguntas aleatorias</div>
+        </button>
       </div>
     </div>
   );
@@ -717,8 +794,14 @@ export default function App() {
               <div style={{ color: C.dim, fontSize: 12 }}>{currentIdx + 1}/{filteredScenarios.length}</div>
             </div>
           </div>
-          <div style={{ height: 6, background: "#e0e0e0", borderRadius: 3, marginBottom: 20 }}>
+          <div style={{ height: 6, background: "#e0e0e0", borderRadius: 3, marginBottom: 8 }}>
             <div style={{ height: "100%", borderRadius: 3, width: `${progress}%`, background: `linear-gradient(90deg,${C.green},${C.greenLight})`, transition: "width 0.5s ease" }} />
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 4, width: `${(timeLeft / 15) * 100}%`, background: timeLeft > 8 ? "#4caf50" : timeLeft > 4 ? "#ff9800" : "#f44336", transition: "width 1s linear, background 0.3s" }} />
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: timeLeft > 8 ? C.green : timeLeft > 4 ? "#e65100" : C.red, minWidth: 28, textAlign: "right" }}>{timeLeft}s</div>
           </div>
           <div style={{ ...card, padding: "20px" }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
@@ -823,7 +906,7 @@ export default function App() {
 
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
-    const pct = (score / filteredScenarios.length) * 100;
+    const totalQ = filteredScenarios.length; const pct = (score / totalQ) * 100;
     const level = pct >= 75 ? { label: "EXPERTO", color: C.green, bg: C.greenPale, emoji: "🏆" } : pct >= 50 ? { label: "INTERMEDIO", color: "#f57f17", bg: "#fff8e1", emoji: "🎯" } : { label: "PRINCIPIANTE", color: C.red, bg: "#ffebee", emoji: "⚠️" };
     const byCategory = {};
     answers.forEach(a => {
@@ -836,7 +919,7 @@ export default function App() {
         <div style={cont}>
           <div style={{ textAlign: "center", padding: "32px 0 24px" }}>
             <div style={{ fontSize: 56, marginBottom: 12 }}>{level.emoji}</div>
-            <div style={{ fontSize: "clamp(48px,12vw,72px)", fontWeight: 900, color: C.green }}>{score}/{filteredScenarios.length}</div>
+            <div style={{ fontSize: "clamp(48px,12vw,72px)", fontWeight: 900, color: C.green }}>{score}/{totalQ}</div>
             <div style={{ display: "inline-block", background: level.bg, border: `1px solid ${level.color}`, color: level.color, padding: "5px 18px", borderRadius: 20, fontSize: 12, fontWeight: 800, margin: "12px 0 8px" }}>NIVEL: {level.label}</div>
             <div style={{ color: C.green, fontSize: 20, fontWeight: 900, marginBottom: 4 }}>★ {totalPoints} puntos</div>
             {bestStreak >= 2 && <div style={{ color: "#e65100", fontSize: 13, fontWeight: 700 }}>🔥 Mejor racha: ×{bestStreak}</div>}
