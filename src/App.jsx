@@ -801,7 +801,7 @@ export default function App() {
         )}
         <div style={cont}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, marginBottom: 12 }}>
-            <button style={btn("dim")} onClick={() => setScreen("home")}>← Salir</button>
+            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>← Salir</button>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {streak >= 2 && <div style={{ color: "#e65100", fontSize: 12, background: "#fff3e0", border: "1px solid #ffcc80", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>🔥 ×{streak}</div>}
               <div style={{ color: C.green, fontSize: 12, background: C.greenPale, border: `1px solid ${C.greenMid}`, padding: "4px 12px", borderRadius: 20, fontWeight: 700 }}>★ {totalPoints} pts</div>
