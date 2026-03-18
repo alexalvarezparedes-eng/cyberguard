@@ -648,14 +648,15 @@ export default function App() {
     const user = auth.currentUser;
     if (!user) return;
     const displayName = avatarName ? avatarName : (user.displayName || user.email);
-    await supabase.from("ranking").insert([{
-      username: displayName,
-      email: user.email,
-      score: finalScore,
-      points: finalPoints,
-      category: filterUsed,
-      avatar: avatar ? avatar.emoji : "",
-    }]);
+    try {
+      await supabase.from("ranking").insert([{
+        username: displayName,
+        email: user.email,
+        score: finalScore,
+        points: finalPoints,
+        category: filterUsed || "TODOS",
+      }]);
+    } catch(e) { console.error("saveScore error:", e); }
   };
 
   const askAI = async () => {
@@ -940,7 +941,7 @@ export default function App() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
-              <div key={currentIdx} style={{ height: "100%", borderRadius: 4, width: "100%", background: "#4caf50", animation: "timerBar 40s linear forwards" }} />
+              <div style={{ height: "100%", borderRadius: 4, width: "100%", background: "#4caf50" }} />
             </div>
             <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>⏱ 40 seg</div>
           </div>
@@ -1072,7 +1073,6 @@ export default function App() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
                   <span style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
                 </div>
                   <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
@@ -1138,7 +1138,7 @@ export default function App() {
           </div>
         </div>
       </div>
-      <style>{`@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}} @keyframes timerBar{0%{width:100%;background:#4caf50} 50%{background:#ff9800} 80%{background:#f44336} 100%{width:0%;background:#f44336}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}} `}</style>
     </div>
   );
 }
