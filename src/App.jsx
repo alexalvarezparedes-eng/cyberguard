@@ -693,13 +693,18 @@ export default function App() {
     setCurrentIdx(0);
     setSelected(null);
     setShowResult(false);
-    const { data } = await supabase
-      .from("ranking")
-      .select("*")
-      .order("points", { ascending: false })
-      .limit(10);
-    setRankingData(data || []);
+    setRankingData([]);
     setScreen("ranking");
+    try {
+      const { data } = await supabase
+        .from("ranking")
+        .select("*")
+        .order("points", { ascending: false })
+        .limit(10);
+      setRankingData(data || []);
+    } catch (e) {
+      console.error("Error cargando ranking:", e);
+    }
   };
 
   const handleLogout = async () => {
