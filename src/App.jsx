@@ -788,6 +788,16 @@ export default function App() {
   );
 
   // ===== PANTALLA: QUIZ =====
+  if (screen === "quiz" && !scenario) return (
+    <div style={wrap}>
+      <div style={cont}>
+        <div style={{ paddingTop: 20 }}>
+          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver al inicio</button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (screen === "quiz" && scenario) {
     const progress = quizScenarios.length > 0 ? ((currentIdx) / quizScenarios.length) * 100 : 0;
     const isCorrect = showResult && scenario.options[selected]?.correct;
