@@ -480,6 +480,7 @@ export default function App() {
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
   const timerRef = useRef(null);
+  const isQuizActive = useRef(false);
 
   const BLOCKS = [
     { id: "Phishing", name: "Phishing", icon: "🎣", color: "#c62828", bg: "#ffebee" },
@@ -527,6 +528,7 @@ export default function App() {
 
   // Temporizador simple
   const stopTimer = () => {
+    isQuizActive.current = false;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -536,16 +538,23 @@ export default function App() {
 
   const startTimer = () => {
     stopTimer();
+    isQuizActive.current = true;
     let t = 40;
     setTimeLeft(40);
     timerRef.current = setInterval(() => {
+      if (!isQuizActive.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        return;
+      }
       t = t - 1;
       setTimeLeft(t);
       if (t <= 0) {
         clearInterval(timerRef.current);
         timerRef.current = null;
-        setTimeLeft(0);
-        setShowResult(true);
+        if (isQuizActive.current) {
+          setShowResult(true);
+        }
       }
     }, 1000);
   };
