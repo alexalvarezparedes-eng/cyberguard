@@ -477,72 +477,67 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
-  // Temporizador
+  // Temporizador - usa un ID único para evitar timers huerfanos
   const stopTimer = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    setTimeLeft(40);
   };
 
   const startTimer = () => {
     stopTimer();
     setTimeLeft(40);
+    setSelected(null);
     setShowResult(false);
-    let t = 40;
-    timerRef.current = setInterval(() => {
-      t -= 1;
-      setTimeLeft(t);
-      if (t <= 0) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-        // Tiempo agotado: avanzar a la siguiente pregunta automáticamente
-        setAnswers(a => {
-          const scenarios = quizScenariosRef.current;
-          const idx = currentIdxRef.current;
-          const sc = scenarios[idx];
-          return sc ? [...a, { scenarioId: sc.id, correct: false, category: sc.category }] : a;
-        });
-        setCurrentIdx(i => {
-          const scenarios = quizScenariosRef.current;
-          if (i < scenarios.length - 1) {
+    const timerId = setInterval(() => {
+      // Si este timer ya no es el activo, detenerlo
+      if (timerRef.current !== timerId) {
+        clearInterval(timerId);
+        return;
+      }
+      setTimeLeft(prev => {
+        const next = prev - 1;
+        if (next <= 0) {
+          // Tiempo agotado
+          clearInterval(timerId);
+          timerRef.current = null;
+          const sc = quizScenariosRef.current[currentIdxRef.current];
+          if (sc) {
+            setAnswers(a => [...a, { scenarioId: sc.id, correct: false, category: sc.category }]);
+          }
+          const nextIdx = currentIdxRef.current + 1;
+          if (nextIdx < quizScenariosRef.current.length) {
+            currentIdxRef.current = nextIdx;
+            setCurrentIdx(nextIdx);
             setSelected(null);
             setShowResult(false);
-            // start new timer for next question
-            let t2 = 40;
-            setTimeLeft(40);
-            timerRef.current = setInterval(() => {
-              t2 -= 1;
-              setTimeLeft(t2);
-              if (t2 <= 0) {
-                clearInterval(timerRef.current);
-                timerRef.current = null;
-                setAnswers(a2 => {
-                  const sc2 = quizScenariosRef.current[currentIdxRef.current];
-                  return sc2 ? [...a2, { scenarioId: sc2.id, correct: false, category: sc2.category }] : a2;
-                });
-                setCurrentIdx(i2 => {
-                  const s2 = quizScenariosRef.current;
-                  if (i2 < s2.length - 1) {
-                    setSelected(null);
-                    setShowResult(false);
-                    return i2 + 1;
-                  } else {
-                    setScreen("results");
-                    return i2;
-                  }
-                });
+            // Iniciar nuevo timer para la siguiente pregunta
+            const nextTimerId = setInterval(() => {
+              if (timerRef.current !== nextTimerId) {
+                clearInterval(nextTimerId);
+                return;
               }
+              setTimeLeft(p => {
+                const n = p - 1;
+                if (n <= 0) {
+                  clearInterval(nextTimerId);
+                  timerRef.current = null;
+                }
+                return n <= 0 ? 40 : n;
+              });
             }, 1000);
-            return i + 1;
+            timerRef.current = nextTimerId;
+            setTimeLeft(40);
           } else {
             setScreen("results");
-            return i;
           }
-        });
-      }
+          return 40;
+        }
+        return next;
+      });
     }, 1000);
+    timerRef.current = timerId;
   };
 
 
