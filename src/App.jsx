@@ -423,8 +423,6 @@ export default function App() {
   const [nameError, setNameError] = useState(false);
   const [timeLeft, setTimeLeft] = useState(40);
   const timerStartRef = useRef(null);
-  const quizScenariosRef = useRef([]);
-  const currentIdxRef = useRef(0);
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
   const timerRef = useRef(null);
@@ -458,10 +456,6 @@ export default function App() {
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
   const [quizScenarios, setQuizScenarios] = useState([]);
 
-  // Sync refs with state
-  useEffect(() => { quizScenariosRef.current = quizScenarios; }, [quizScenarios]);
-  useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
-
   const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
     return shuffle([...base]).map(s => ({ ...s, options: shuffle([...s.options]) }));
@@ -477,67 +471,29 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
-  // Temporizador - usa un ID único para evitar timers huerfanos
+  // Temporizador simple
   const stopTimer = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    setTimeLeft(40);
   };
 
   const startTimer = () => {
     stopTimer();
+    let t = 40;
     setTimeLeft(40);
-    setSelected(null);
-    setShowResult(false);
-    const timerId = setInterval(() => {
-      // Si este timer ya no es el activo, detenerlo
-      if (timerRef.current !== timerId) {
-        clearInterval(timerId);
-        return;
+    timerRef.current = setInterval(() => {
+      t = t - 1;
+      setTimeLeft(t);
+      if (t <= 0) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        setTimeLeft(0);
+        setShowResult(true);
       }
-      setTimeLeft(prev => {
-        const next = prev - 1;
-        if (next <= 0) {
-          // Tiempo agotado
-          clearInterval(timerId);
-          timerRef.current = null;
-          const sc = quizScenariosRef.current[currentIdxRef.current];
-          if (sc) {
-            setAnswers(a => [...a, { scenarioId: sc.id, correct: false, category: sc.category }]);
-          }
-          const nextIdx = currentIdxRef.current + 1;
-          if (nextIdx < quizScenariosRef.current.length) {
-            currentIdxRef.current = nextIdx;
-            setCurrentIdx(nextIdx);
-            setSelected(null);
-            setShowResult(false);
-            // Iniciar nuevo timer para la siguiente pregunta
-            const nextTimerId = setInterval(() => {
-              if (timerRef.current !== nextTimerId) {
-                clearInterval(nextTimerId);
-                return;
-              }
-              setTimeLeft(p => {
-                const n = p - 1;
-                if (n <= 0) {
-                  clearInterval(nextTimerId);
-                  timerRef.current = null;
-                }
-                return n <= 0 ? 40 : n;
-              });
-            }, 1000);
-            timerRef.current = nextTimerId;
-            setTimeLeft(40);
-          } else {
-            setScreen("results");
-          }
-          return 40;
-        }
-        return next;
-      });
     }, 1000);
-    timerRef.current = timerId;
   };
 
 
