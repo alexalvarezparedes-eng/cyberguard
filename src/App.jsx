@@ -998,6 +998,17 @@ export default function App() {
     );
   }
 
+  // Fallback - si ninguna pantalla coincide, ir al home
+  if (screen !== "chat") return (
+    <div style={wrap}>
+      <div style={cont}>
+        <div style={{ paddingTop: 40, textAlign: "center" }}>
+          <button style={btn("primary")} onClick={goHome}>Ir al inicio</button>
+        </div>
+      </div>
+    </div>
+  );
+
   // ===== PANTALLA: CHAT =====
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
   return (
