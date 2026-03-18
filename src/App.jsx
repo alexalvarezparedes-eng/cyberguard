@@ -471,23 +471,33 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
-  // Temporizador 15 segundos
+  // Temporizador
   useEffect(() => {
+    let mounted = true;
     if (timerActive && !showResult) {
       timerRef.current = setInterval(() => {
+        if (!mounted) {
+          clearInterval(timerRef.current);
+          return;
+        }
         setTimeLeft(t => {
           if (t <= 1) {
             clearInterval(timerRef.current);
-            setTimerActive(false);
-            setShowResult(true);
-            setSelected(null);
+            if (mounted) {
+              setTimerActive(false);
+              setShowResult(true);
+              setSelected(null);
+            }
             return 0;
           }
           return t - 1;
         });
       }, 1000);
     }
-    return () => clearInterval(timerRef.current);
+    return () => {
+      mounted = false;
+      clearInterval(timerRef.current);
+    };
   }, [timerActive, showResult, currentIdx]);
 
 
@@ -540,8 +550,14 @@ export default function App() {
   };
 
   const goHome = () => {
+    // Stop timer immediately to prevent removeChild error
     clearInterval(timerRef.current);
+    timerRef.current = null;
+    // Change screen first
+    setScreen("home");
+    // Then clean up state
     setTimerActive(false);
+    setQuizScenarios([]);
     setCurrentIdx(0);
     setSelected(null);
     setShowResult(false);
@@ -552,8 +568,6 @@ export default function App() {
     setAnswers([]);
     setTimeLeft(40);
     setActiveBlock(null);
-    setQuizScenarios([]);
-    setScreen("home");
   };
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
@@ -601,11 +615,12 @@ export default function App() {
 
   const loadRanking = async () => {
     clearInterval(timerRef.current);
+    timerRef.current = null;
     setTimerActive(false);
+    setQuizScenarios([]);
     setCurrentIdx(0);
     setSelected(null);
     setShowResult(false);
-    setQuizScenarios([]);
     const { data } = await supabase
       .from("ranking")
       .select("*")
