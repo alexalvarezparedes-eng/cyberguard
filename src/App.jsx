@@ -1093,6 +1093,7 @@ export default function App() {
   );
 
   // ===== PANTALLA: CHAT =====
+  if (screen !== "chat") return null;
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
   return (
     <div style={{ ...wrap, display: "flex", flexDirection: "column", height: "100vh" }}>
