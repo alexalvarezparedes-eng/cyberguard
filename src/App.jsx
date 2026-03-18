@@ -509,7 +509,32 @@ export default function App() {
           if (i < scenarios.length - 1) {
             setSelected(null);
             setShowResult(false);
-            setTimeout(() => startTimer(), 100);
+            // start new timer for next question
+            let t2 = 40;
+            setTimeLeft(40);
+            timerRef.current = setInterval(() => {
+              t2 -= 1;
+              setTimeLeft(t2);
+              if (t2 <= 0) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+                setAnswers(a2 => {
+                  const sc2 = quizScenariosRef.current[currentIdxRef.current];
+                  return sc2 ? [...a2, { scenarioId: sc2.id, correct: false, category: sc2.category }] : a2;
+                });
+                setCurrentIdx(i2 => {
+                  const s2 = quizScenariosRef.current;
+                  if (i2 < s2.length - 1) {
+                    setSelected(null);
+                    setShowResult(false);
+                    return i2 + 1;
+                  } else {
+                    setScreen("results");
+                    return i2;
+                  }
+                });
+              }
+            }, 1000);
             return i + 1;
           } else {
             setScreen("results");
@@ -1022,7 +1047,7 @@ export default function App() {
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setScreen("quiz"); startTimer(); }}>↺ Repetir</button>
-            <button style={btn("ghost")} onClick={() => { goHome(); setTimeout(() => setScreen("selector"), 50); }}>📋 Otra Categoría</button>
+            <button style={btn("ghost")} onClick={() => { goHome(); setScreen("selector"); }}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={goHome}>⌂ Inicio</button>
           </div>
