@@ -885,7 +885,7 @@ export default function App() {
             <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
               <div key={currentIdx} style={{ height: "100%", borderRadius: 4, width: "100%", background: "#4caf50", animation: "timerBar 40s linear forwards" }} />
             </div>
-            <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>40s</div>
+            <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>⏱ 40 seg</div>
           </div>
           <div style={{ ...card, padding: "20px" }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
