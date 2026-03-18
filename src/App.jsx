@@ -422,8 +422,7 @@ export default function App() {
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
   const [timeLeft, setTimeLeft] = useState(40);
-  const [timerActive, setTimerActive] = useState(false);
-  const timerActiveRef = useRef(false);
+  const timerStartRef = useRef(null);
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
   const timerRef = useRef(null);
@@ -473,38 +472,29 @@ export default function App() {
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
   // Temporizador
-  const startTimer = () => {
-    clearInterval(timerRef.current);
-    timerRef.current = null;
-    timerActiveRef.current = true;
-    setTimerActive(true);
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     setTimeLeft(40);
-    timerRef.current = setInterval(() => {
-      if (!timerActiveRef.current) {
-        clearInterval(timerRef.current);
-        return;
-      }
-      setTimeLeft(t => {
-        if (t <= 1) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-          timerActiveRef.current = false;
-          setTimerActive(false);
-          if (timerActiveRef.current === false) {
-            setShowResult(true);
-          }
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
   };
 
-  const stopTimer = () => {
-    timerActiveRef.current = false;
-    clearInterval(timerRef.current);
-    timerRef.current = null;
-    setTimerActive(false);
+  const startTimer = () => {
+    stopTimer();
+    setTimeLeft(40);
+    setShowResult(false);
+    let t = 40;
+    timerRef.current = setInterval(() => {
+      t -= 1;
+      setTimeLeft(t);
+      if (t <= 0) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        setShowResult(true);
+        setSelected(null);
+      }
+    }, 1000);
   };
 
 
@@ -543,9 +533,14 @@ export default function App() {
 
   const resetCounters = () => {
     stopTimer();
-    setCurrentIdx(0); setSelected(null); setShowResult(false);
-    setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]);
-    setTimeLeft(40);
+    setCurrentIdx(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore(0);
+    setTotalPoints(0);
+    setStreak(0);
+    setBestStreak(0);
+    setAnswers([]);
   };
 
   const resetQuiz = () => {
