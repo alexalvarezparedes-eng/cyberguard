@@ -726,7 +726,7 @@ export default function App() {
   // ===== PANTALLA: SELECCIÓN DE AVATAR =====
   if (showAvatar) {
     return (
-      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0a1628,#0d2d6b,#071530)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div translate="no" style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0a1628,#0d2d6b,#071530)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
         <div style={{ maxWidth: 500, width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: 32, backdropFilter: "blur(10px)" }}>
           <div style={{ textAlign: "center", marginBottom: 24 }}>
             <div style={{ fontSize: 48, marginBottom: 8 }}>🎮</div>
@@ -796,7 +796,7 @@ export default function App() {
   // ===== PANTALLA: HOME =====
 
   if (screen === "home") return (
-    <div style={wrap}>
+    <div style={wrap} translate="no">
       <div style={cont}>
         <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 12, marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -858,7 +858,7 @@ export default function App() {
 
   // ===== PANTALLA: BLOQUES =====
   if (screen === "selector") return (
-    <div style={wrap}>
+    <div style={wrap} translate="no">
       <div style={cont}>
         <div style={{ paddingTop: 20, marginBottom: 20 }}><button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button></div>
         <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Escoge tu Bloque</h2>
@@ -1051,7 +1051,7 @@ export default function App() {
 
   // ===== PANTALLA: RANKING =====
   if (screen === "ranking") return (
-    <div style={wrap}>
+    <div style={wrap} translate="no">
       <div style={cont}>
         <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
@@ -1096,7 +1096,7 @@ export default function App() {
   if (screen !== "chat") return null;
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
   return (
-    <div style={{ ...wrap, display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div translate="no" style={{ ...wrap, display: "flex", flexDirection: "column", height: "100vh" }}>
       <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 0", borderBottom: `1px solid ${C.border}`, marginBottom: 14, flexShrink: 0 }}>
           <button style={btn("dim", { padding: "6px 12px" })} onClick={() => setScreen("home")}>←</button>
