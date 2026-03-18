@@ -475,12 +475,8 @@ export default function App() {
   const [tempAvatar, setTempAvatar] = useState(null);
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(40);
-  const timerStartRef = useRef(null);
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
-  const timerRef = useRef(null);
-  const isQuizActive = useRef(false);
 
   const BLOCKS = [
     { id: "Phishing", name: "Phishing", icon: "🎣", color: "#c62828", bg: "#ffebee" },
@@ -526,44 +522,8 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
-  const stopTimer = () => {
-    isQuizActive.current = false;
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  const startTimer = () => {
-    stopTimer();
-    isQuizActive.current = true;
-    setTimeLeft(40);
-  };
-
-  // Timer effect - only runs when screen is quiz
-  useEffect(() => {
-    if (screen !== "quiz" || showResult) return;
-    isQuizActive.current = true;
-    let t = 40;
-    setTimeLeft(40);
-    const id = setInterval(() => {
-      if (!isQuizActive.current) {
-        clearInterval(id);
-        return;
-      }
-      t -= 1;
-      setTimeLeft(t);
-      if (t <= 0) {
-        clearInterval(id);
-        setShowResult(true);
-      }
-    }, 1000);
-    timerRef.current = id;
-    return () => {
-      clearInterval(id);
-      timerRef.current = null;
-    };
-  }, [screen, currentIdx, showResult]);
+  const stopTimer = () => {};
+  const startTimer = () => {};
 
 
   const handleAnswer = (idx) => {
@@ -629,7 +589,6 @@ export default function App() {
     setStreak(0);
     setBestStreak(0);
     setAnswers([]);
-    setTimeLeft(40);
     setActiveBlock(null);
   };
 
@@ -924,9 +883,9 @@ export default function App() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 4, width: `${(timeLeft / 40) * 100}%`, background: timeLeft > 20 ? "#4caf50" : timeLeft > 10 ? "#ff9800" : "#f44336", transition: "width 1s linear, background 0.3s" }} />
+              <div key={currentIdx} style={{ height: "100%", borderRadius: 4, width: "100%", background: "#4caf50", animation: "timerBar 40s linear forwards" }} />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 900, color: timeLeft > 20 ? C.green : timeLeft > 10 ? "#e65100" : C.red, minWidth: 28, textAlign: "right" }}>{timeLeft}s</div>
+            <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>40s</div>
           </div>
           <div style={{ ...card, padding: "20px" }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
@@ -1122,7 +1081,7 @@ export default function App() {
           </div>
         </div>
       </div>
-      <style>{`@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}} @keyframes timerBar{0%{width:100%;background:#4caf50} 50%{background:#ff9800} 80%{background:#f44336} 100%{width:0%;background:#f44336}}`}</style>
     </div>
   );
 }
