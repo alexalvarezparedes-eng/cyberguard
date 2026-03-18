@@ -526,38 +526,44 @@ export default function App() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
-  // Temporizador simple
   const stopTimer = () => {
     isQuizActive.current = false;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    setTimeLeft(40);
   };
 
   const startTimer = () => {
     stopTimer();
     isQuizActive.current = true;
+    setTimeLeft(40);
+  };
+
+  // Timer effect - only runs when screen is quiz
+  useEffect(() => {
+    if (screen !== "quiz" || showResult) return;
+    isQuizActive.current = true;
     let t = 40;
     setTimeLeft(40);
-    timerRef.current = setInterval(() => {
+    const id = setInterval(() => {
       if (!isQuizActive.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+        clearInterval(id);
         return;
       }
-      t = t - 1;
+      t -= 1;
       setTimeLeft(t);
       if (t <= 0) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-        if (isQuizActive.current) {
-          setShowResult(true);
-        }
+        clearInterval(id);
+        setShowResult(true);
       }
     }, 1000);
-  };
+    timerRef.current = id;
+    return () => {
+      clearInterval(id);
+      timerRef.current = null;
+    };
+  }, [screen, currentIdx, showResult]);
 
 
   const handleAnswer = (idx) => {
