@@ -538,6 +538,23 @@ export default function App() {
     setActiveBlock(null);
   };
 
+  const goHome = () => {
+    clearInterval(timerRef.current);
+    setTimerActive(false);
+    setCurrentIdx(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore(0);
+    setTotalPoints(0);
+    setStreak(0);
+    setBestStreak(0);
+    setAnswers([]);
+    setTimeLeft(40);
+    setActiveBlock(null);
+    setQuizScenarios([]);
+    setScreen("home");
+  };
+
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
     const user = auth.currentUser;
     if (!user) return;
@@ -788,17 +805,16 @@ export default function App() {
   );
 
   // ===== PANTALLA: QUIZ =====
-  if (screen === "quiz" && !scenario) return (
-    <div style={wrap}>
-      <div style={cont}>
-        <div style={{ paddingTop: 20 }}>
-          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver al inicio</button>
+  if (screen === "quiz") {
+    if (!scenario) return (
+      <div style={wrap}>
+        <div style={cont}>
+          <div style={{ paddingTop: 40, textAlign: "center" }}>
+            <button style={btn("primary")} onClick={goHome}>← Volver al inicio</button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-
-  if (screen === "quiz" && scenario) {
+    );
     const progress = quizScenarios.length > 0 ? ((currentIdx) / quizScenarios.length) * 100 : 0;
     const isCorrect = showResult && scenario.options[selected]?.correct;
     return (
@@ -812,7 +828,7 @@ export default function App() {
         )}
         <div style={cont}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, marginBottom: 12 }}>
-            <button style={btn("dim")} onClick={() => { clearInterval(timerRef.current); setTimerActive(false); setScreen("home"); }}>← Salir</button>
+            <button style={btn("dim")} onClick={goHome}>← Salir</button>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {streak >= 2 && <div style={{ color: "#e65100", fontSize: 12, background: "#fff3e0", border: "1px solid #ffcc80", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>🔥 ×{streak}</div>}
               <div style={{ color: C.green, fontSize: 12, background: C.greenPale, border: `1px solid ${C.greenMid}`, padding: "4px 12px", borderRadius: 20, fontWeight: 700 }}>★ {totalPoints} pts</div>
