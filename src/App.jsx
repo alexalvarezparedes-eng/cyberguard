@@ -423,6 +423,8 @@ export default function App() {
   const [nameError, setNameError] = useState(false);
   const [timeLeft, setTimeLeft] = useState(40);
   const timerStartRef = useRef(null);
+  const quizScenariosRef = useRef([]);
+  const currentIdxRef = useRef(0);
   const [activeBlock, setActiveBlock] = useState(null);
   const chatEndRef = useRef(null);
   const timerRef = useRef(null);
@@ -455,6 +457,10 @@ export default function App() {
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
   const [quizScenarios, setQuizScenarios] = useState([]);
+
+  // Sync refs with state
+  useEffect(() => { quizScenariosRef.current = quizScenarios; }, [quizScenarios]);
+  useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
 
   const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
@@ -491,8 +497,25 @@ export default function App() {
       if (t <= 0) {
         clearInterval(timerRef.current);
         timerRef.current = null;
-        setShowResult(true);
-        setSelected(null);
+        // Tiempo agotado: avanzar a la siguiente pregunta automáticamente
+        setAnswers(a => {
+          const scenarios = quizScenariosRef.current;
+          const idx = currentIdxRef.current;
+          const sc = scenarios[idx];
+          return sc ? [...a, { scenarioId: sc.id, correct: false, category: sc.category }] : a;
+        });
+        setCurrentIdx(i => {
+          const scenarios = quizScenariosRef.current;
+          if (i < scenarios.length - 1) {
+            setSelected(null);
+            setShowResult(false);
+            setTimeout(() => startTimer(), 100);
+            return i + 1;
+          } else {
+            setScreen("results");
+            return i;
+          }
+        });
       }
     }, 1000);
   };
