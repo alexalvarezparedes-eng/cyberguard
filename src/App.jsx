@@ -676,12 +676,8 @@ export default function App() {
   const diffColor = (d) => d === "FÁCIL" ? "#2e7d32" : d === "MEDIO" ? "#f57f17" : "#c62828";
   const diffBg = (d) => d === "FÁCIL" ? "#e8f5e9" : d === "MEDIO" ? "#fff8e1" : "#ffebee";
 
-  // Seguridad: si screen es home, limpiar quiz
-  if (screen === "home" && quizScenarios.length > 0) {
-    setQuizScenarios([]);
-  }
-
   // ===== PANTALLA: HOME =====
+
   if (screen === "home") return (
     <div style={wrap}>
       <div style={cont}>
@@ -793,7 +789,7 @@ export default function App() {
 
   // ===== PANTALLA: QUIZ =====
   if (screen === "quiz" && scenario) {
-    const progress = ((currentIdx) / filteredScenarios.length) * 100;
+    const progress = quizScenarios.length > 0 ? ((currentIdx) / quizScenarios.length) * 100 : 0;
     const isCorrect = showResult && scenario.options[selected]?.correct;
     return (
       <div style={wrap}>
@@ -806,11 +802,11 @@ export default function App() {
         )}
         <div style={cont}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, marginBottom: 12 }}>
-            <button style={btn("dim")} onClick={() => { clearInterval(timerRef.current); setScreen("home"); setTimerActive(false); setCurrentIdx(0); setSelected(null); setShowResult(false); setScore(0); setTotalPoints(0); setStreak(0); setBestStreak(0); setAnswers([]); setTimeLeft(40); setActiveBlock(null); setQuizScenarios([]); }}>← Salir</button>
+            <button style={btn("dim")} onClick={() => { clearInterval(timerRef.current); setTimerActive(false); setScreen("home"); }}>← Salir</button>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {streak >= 2 && <div style={{ color: "#e65100", fontSize: 12, background: "#fff3e0", border: "1px solid #ffcc80", padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>🔥 ×{streak}</div>}
               <div style={{ color: C.green, fontSize: 12, background: C.greenPale, border: `1px solid ${C.greenMid}`, padding: "4px 12px", borderRadius: 20, fontWeight: 700 }}>★ {totalPoints} pts</div>
-              <div style={{ color: C.dim, fontSize: 12 }}>{currentIdx + 1}/{filteredScenarios.length}</div>
+              <div style={{ color: C.dim, fontSize: 12 }}>{currentIdx + 1}/{quizScenarios.length}</div>
             </div>
           </div>
           <div style={{ height: 6, background: "#e0e0e0", borderRadius: 3, marginBottom: 8 }}>
@@ -925,7 +921,7 @@ export default function App() {
 
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
-    const totalQ = filteredScenarios.length; const pct = (score / totalQ) * 100;
+    const totalQ = quizScenarios.length || 1; const pct = (score / totalQ) * 100;
     const level = pct >= 75 ? { label: "EXPERTO", color: C.green, bg: C.greenPale, emoji: "🏆" } : pct >= 50 ? { label: "INTERMEDIO", color: "#f57f17", bg: "#fff8e1", emoji: "🎯" } : { label: "PRINCIPIANTE", color: C.red, bg: "#ffebee", emoji: "⚠️" };
     const byCategory = {};
     answers.forEach(a => {
