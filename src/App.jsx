@@ -490,10 +490,10 @@ export default function App() {
     return () => clearInterval(timerRef.current);
   }, [timerActive, showResult, currentIdx]);
 
-  const scenario = quizScenarios[currentIdx];
 
   const handleAnswer = (idx) => {
-    if (showResult) return;
+    const scenario = quizScenarios[currentIdx];
+    if (!scenario || showResult) return;
     clearInterval(timerRef.current);
     setTimerActive(false);
     setSelected(idx);
@@ -512,7 +512,8 @@ export default function App() {
   };
 
   const nextScenario = () => {
-    if (currentIdx < filteredScenarios.length - 1) {
+    const totalScenarios = quizScenarios.length;
+    if (currentIdx < totalScenarios - 1) {
       setCurrentIdx(i => i + 1);
       setSelected(null);
       setShowResult(false);
@@ -812,6 +813,7 @@ export default function App() {
 
   // ===== PANTALLA: QUIZ =====
   if (screen === "quiz") {
+    const scenario = quizScenarios[currentIdx];
     if (!scenario) return (
       <div style={wrap}>
         <div style={cont}>
@@ -897,7 +899,7 @@ export default function App() {
             )}
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
-                <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < filteredScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
+                <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < quizScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
                 <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
               </div>
             )}
@@ -953,7 +955,7 @@ export default function App() {
 
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
-    const totalQ = quizScenarios.length || 1; const pct = (score / totalQ) * 100;
+    const totalQ = answers.length || 1; const pct = (score / totalQ) * 100;
     const level = pct >= 75 ? { label: "EXPERTO", color: C.green, bg: C.greenPale, emoji: "🏆" } : pct >= 50 ? { label: "INTERMEDIO", color: "#f57f17", bg: "#fff8e1", emoji: "🎯" } : { label: "PRINCIPIANTE", color: C.red, bg: "#ffebee", emoji: "⚠️" };
     const byCategory = {};
     answers.forEach(a => {
@@ -966,7 +968,7 @@ export default function App() {
         <div style={cont}>
           <div style={{ textAlign: "center", padding: "32px 0 24px" }}>
             <div style={{ fontSize: 56, marginBottom: 12 }}>{level.emoji}</div>
-            <div style={{ fontSize: "clamp(48px,12vw,72px)", fontWeight: 900, color: C.green }}>{score}/{totalQ}</div>
+            <div style={{ fontSize: "clamp(48px,12vw,72px)", fontWeight: 900, color: C.green }}>{score}/{answers.length || totalQ}</div>
             <div style={{ display: "inline-block", background: level.bg, border: `1px solid ${level.color}`, color: level.color, padding: "5px 18px", borderRadius: 20, fontSize: 12, fontWeight: 800, margin: "12px 0 8px" }}>NIVEL: {level.label}</div>
             <div style={{ color: C.green, fontSize: 20, fontWeight: 900, marginBottom: 4 }}>★ {totalPoints} puntos</div>
             {bestStreak >= 2 && <div style={{ color: "#e65100", fontSize: 13, fontWeight: 700 }}>🔥 Mejor racha: ×{bestStreak}</div>}
@@ -997,17 +999,6 @@ export default function App() {
       </div>
     );
   }
-
-  // Fallback - si ninguna pantalla coincide, ir al home
-  if (screen !== "chat") return (
-    <div style={wrap}>
-      <div style={cont}>
-        <div style={{ paddingTop: 40, textAlign: "center" }}>
-          <button style={btn("primary")} onClick={goHome}>Ir al inicio</button>
-        </div>
-      </div>
-    </div>
-  );
 
   // ===== PANTALLA: CHAT =====
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
