@@ -599,6 +599,12 @@ export default function App() {
   };
 
   const loadRanking = async () => {
+    clearInterval(timerRef.current);
+    setTimerActive(false);
+    setCurrentIdx(0);
+    setSelected(null);
+    setShowResult(false);
+    setQuizScenarios([]);
     const { data } = await supabase
       .from("ranking")
       .select("*")
@@ -983,9 +989,9 @@ export default function App() {
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setTimerActive(true); setScreen("quiz"); }}>↺ Repetir</button>
-            <button style={btn("ghost")} onClick={() => { resetQuiz(); setScreen("selector"); }}>📋 Otra Categoría</button>
+            <button style={btn("ghost")} onClick={() => { goHome(); setTimeout(() => setScreen("selector"), 50); }}>📋 Otra Categoría</button>
             <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
-            <button style={btn("dim")} onClick={() => { resetQuiz(); setScreen("home"); }}>⌂ Inicio</button>
+            <button style={btn("dim")} onClick={goHome}>⌂ Inicio</button>
           </div>
         </div>
       </div>
