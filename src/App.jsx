@@ -1001,50 +1001,6 @@ export default function App() {
     );
   }
 
-  // ===== PANTALLA: RANKING =====
-  if (screen === "ranking") return (
-    <div style={wrap}>
-      <div style={cont}>
-        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
-          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
-          <div style={{ width: 80 }} />
-        </div>
-        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
-          {rankingData.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
-              <p>Aún no hay puntajes registrados.</p>
-              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
-            </div>
-          ) : (
-            rankingData.map((entry, idx) => (
-              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
-                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
-                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
-                  <span style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
-                </div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); startTimer(); }}>▶ Jugar Ahora</button>
-        </div>
-      </div>
-    </div>
-  );
-
   // ===== PANTALLA: RESULTS =====
   if (screen === "results") {
     const totalQ = answers.length || 1; const pct = (score / totalQ) * 100;
@@ -1091,6 +1047,50 @@ export default function App() {
       </div>
     );
   }
+
+  // ===== PANTALLA: RANKING =====
+  if (screen === "ranking") return (
+    <div style={wrap}>
+      <div style={cont}>
+        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
+          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
+          <div style={{ width: 80 }} />
+        </div>
+        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+          {rankingData.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
+              <p>Aún no hay puntajes registrados.</p>
+              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
+            </div>
+          ) : (
+            rankingData.map((entry, idx) => (
+              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
+                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
+                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
+                  <span style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
+                </div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
+                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); startTimer(); }}>▶ Jugar Ahora</button>
+        </div>
+      </div>
+    </div>
+  );
 
   // ===== PANTALLA: CHAT =====
   const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
