@@ -659,6 +659,26 @@ export default function App() {
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
   const [quizScenarios, setQuizScenarios] = useState([]);
 
+  const buildSupremo = () => {
+    const eligible = SCENARIOS.filter(s => s.difficulty === "MEDIO" || s.difficulty === "DIFÍCIL");
+    const byCategory = {};
+    eligible.forEach(s => {
+      if (!byCategory[s.category]) byCategory[s.category] = [];
+      byCategory[s.category].push(s);
+    });
+    let selected = [];
+    const cats = Object.keys(byCategory);
+    const perCat = Math.ceil(25 / cats.length);
+    cats.forEach(cat => {
+      const shuffled = shuffle([...byCategory[cat]]);
+      selected = selected.concat(shuffled.slice(0, perCat));
+    });
+    selected = shuffle(selected).slice(0, 25);
+    const diffOrder = { "MEDIO": 1, "DIFÍCIL": 2 };
+    selected.sort((a, b) => (diffOrder[a.difficulty] || 1) - (diffOrder[b.difficulty] || 1));
+    return selected.map(s => ({ ...s, options: shuffle([...s.options]) }));
+  };
+
   const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
     const diffOrder = { "FÁCIL": 1, "MEDIO": 2, "DIFÍCIL": 3 };
@@ -755,6 +775,7 @@ export default function App() {
         score: finalScore,
         points: finalPoints,
         category: filterUsed || "TODOS",
+        avatar: avatar ? avatar.emoji : "",
       }]);
     } catch(e) { console.error("saveScore error:", e); }
   };
@@ -929,6 +950,38 @@ export default function App() {
           </div>
         </div>
 
+        {/* Botones especiales */}
+        <div style={{ padding: "0 16px 20px", maxWidth: 800, margin: "0 auto", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+          {/* Reto Supremo */}
+          <button
+            onClick={() => {
+              const q = buildSupremo();
+              setQuizScenarios(q);
+              resetCounters();
+              setFilter("SUPREMO");
+              setActiveBlock("SUPREMO");
+              setScreen("quiz");
+              startTimer();
+            }}
+            style={{ background: "linear-gradient(135deg,#b71c1c,#e53935)", border: "2px solid #ff5252", borderRadius: 14, padding: "14px 24px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, color: "#fff" }}>
+            <span style={{ fontSize: 28 }}>⚔️</span>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1 }}>RETO SUPREMO</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>25 preguntas · Medio-Difícil</div>
+            </div>
+          </button>
+          {/* Ranking General */}
+          <button
+            onClick={() => loadRanking("TODOS")}
+            style={{ background: "linear-gradient(135deg,#f57f1722,#f57f1744)", border: "2px solid #f57f1766", borderRadius: 14, padding: "14px 24px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, color: "#fff" }}>
+            <span style={{ fontSize: 28 }}>🏆</span>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1 }}>RANKING</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>Top 10 general</div>
+            </div>
+          </button>
+        </div>
+
         {/* Bloques de categorías */}
         <div style={{ padding: "0 16px 32px" }}>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 3, textAlign: "center", marginBottom: 16 }}>ELIGE TU BLOQUE DE ENTRENAMIENTO</div>
@@ -946,7 +999,7 @@ export default function App() {
                     setScreen("quiz");
                     startTimer();
                   }}
-                  style={{ background: `linear-gradient(135deg,${block.color}22,${block.color}44)`, border: `1.5px solid ${block.color}66`, borderRadius: 16, padding: "18px 12px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", position: "relative", overflow: "hidden" }}>
+                  style={{ background: `linear-gradient(135deg,${block.color}22,${block.color}44)`, border: `1.5px solid ${block.color}66`, borderRadius: 16, padding: "18px 12px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
                   <div style={{ fontSize: 34, marginBottom: 8 }}>{block.icon}</div>
                   <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{block.name}</div>
                   <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 10 }}>{count} preguntas</div>
@@ -1103,7 +1156,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setScreen("quiz"); startTimer(); }}>↺ Repetir</button>
             <button style={btn("ghost")} onClick={goHome}>📋 Inicio</button>
-            <button style={btn("ghost")} onClick={() => loadRanking(activeBlock)}>🏆 Ranking</button>
+            <button style={btn("ghost")} onClick={() => loadRanking(activeBlock || 'TODOS')}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={goHome}>⌂ Inicio</button>
           </div>
         </div>
@@ -1122,7 +1175,7 @@ export default function App() {
             <div style={{ flex: 1, textAlign: "center" }}>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>RANKING</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: "#f5d060" }}>
-                {block ? block.icon + " " + block.name : "🏆 General"}
+                {rankingCategory === "SUPREMO" ? "⚔️ Reto Supremo" : block ? block.icon + " " + block.name : "🏆 Ranking General"}
               </div>
             </div>
             <div style={{ width: 80 }} />
@@ -1147,7 +1200,7 @@ export default function App() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
+                          {entry.avatar ? <span style={{ fontSize: 20 }}>{entry.avatar}</span> : <span style={{ fontSize: 20 }}>🐾</span>}
                         <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
@@ -1165,11 +1218,11 @@ export default function App() {
           <div style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "center" }}>
             <button onClick={() => {
               const cat = rankingCategory;
-              const q = buildQuiz(cat !== "TODOS" ? cat : "TODOS");
+              const q = cat === "SUPREMO" ? buildSupremo() : buildQuiz(cat !== "TODOS" ? cat : "TODOS");
               setQuizScenarios(q);
               resetCounters();
-              setFilter(cat !== "TODOS" ? cat : "TODOS");
-              setActiveBlock(cat !== "TODOS" ? cat : "TODOS");
+              setFilter(cat);
+              setActiveBlock(cat);
               setScreen("quiz");
               startTimer();
             }} style={{ background: "linear-gradient(135deg,#2e7d32,#4caf50)", border: "none", borderRadius: 10, padding: "12px 24px", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
