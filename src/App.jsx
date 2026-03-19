@@ -629,6 +629,10 @@ export default function App() {
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
   const [activeBlock, setActiveBlock] = useState(null);
+  const scoreRef = useRef(0);
+  const totalPointsRef = useRef(0);
+  const timerRef = useRef(null);
+  const isQuizActive = useRef(false);
 
   const BLOCKS = [
     { id: "Phishing", name: "Phishing", icon: "🎣", color: "#c62828", bg: "#ffebee" },
@@ -709,9 +713,13 @@ export default function App() {
     setStreak(newStreak);
     if (newStreak > bestStreak) setBestStreak(newStreak);
     if (correct) {
-      setScore(s => s + 1);
+      const newScore = scoreRef.current + 1;
+      scoreRef.current = newScore;
+      setScore(newScore);
       const bonus = newStreak >= 3 ? Math.floor(scenario.points * 0.5) : 0;
-      setTotalPoints(p => p + scenario.points + bonus);
+      const newPoints = totalPointsRef.current + scenario.points + bonus;
+      totalPointsRef.current = newPoints;
+      setTotalPoints(newPoints);
       if (newStreak === 3) { setShowBadge(true); setTimeout(() => setShowBadge(false), 3000); }
     }
     setAnswers(a => [...a, { scenarioId: scenario.id, correct, category: scenario.category }]);
@@ -726,7 +734,10 @@ export default function App() {
       startTimer();
     } else {
       stopTimer();
-      saveScore(score, totalPoints, activeBlock || filter);
+      // Use current score/totalPoints refs for accurate final values
+      const finalScore = scoreRef.current;
+      const finalPoints = totalPointsRef.current;
+      saveScore(finalScore, finalPoints, activeBlock || filter);
       setScreen("results");
     }
   };
@@ -741,6 +752,8 @@ export default function App() {
     setStreak(0);
     setBestStreak(0);
     setAnswers([]);
+    scoreRef.current = 0;
+    totalPointsRef.current = 0;
   };
 
   const resetQuiz = () => {
@@ -766,18 +779,24 @@ export default function App() {
 
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) { console.error("saveScore: no user"); return; }
     const displayName = avatarName ? avatarName : (user.displayName || user.email);
-    try {
-      await supabase.from("ranking").insert([{
-        username: displayName,
-        email: user.email,
-        score: finalScore,
-        points: finalPoints,
-        category: filterUsed || "TODOS",
-        avatar: avatar ? avatar.emoji : "",
-      }]);
-    } catch(e) { console.error("saveScore error:", e); }
+    const avatarEmoji = avatar ? avatar.emoji : "";
+    console.log("saveScore:", { displayName, finalScore, finalPoints, filterUsed, avatarEmoji });
+    const payload = {
+      username: displayName,
+      email: user.email,
+      score: finalScore,
+      points: finalPoints,
+      category: filterUsed || "TODOS",
+      avatar: avatarEmoji,
+    };
+    const { data, error } = await supabase.from("ranking").insert([payload]).select();
+    if (error) {
+      console.error("saveScore Supabase error:", error);
+    } else {
+      console.log("saveScore success:", data);
+    }
   };
 
 
