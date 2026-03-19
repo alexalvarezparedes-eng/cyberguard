@@ -646,22 +646,38 @@ export default function App() {
   ];
 
   const AVATARS = [
-    { id: 1, emoji: "🤖", name: "CyberBot Alpha", color: "#1565c0", body: "🤖" },
-    { id: 2, emoji: "🐲", name: "Dragón NeoCyber", color: "#6a1b9a", body: "🐲" },
-    { id: 3, emoji: "🦾", name: "BioMech Wolf", color: "#1b5e20", body: "🦾" },
-    { id: 4, emoji: "🐯", name: "Tigre Quantum", color: "#b71c1c", body: "🐯" },
-    { id: 5, emoji: "🦅", name: "Águila Stealth", color: "#0d47a1", body: "🦅" },
-    { id: 6, emoji: "🦁", name: "León Cipher", color: "#e65100", body: "🦁" },
-    { id: 7, emoji: "🐺", name: "Lobo Phantom", color: "#004d40", body: "🐺" },
-    { id: 8, emoji: "🦊", name: "Zorro Neural", color: "#bf360c", body: "🦊" },
-    { id: 9, emoji: "🦈", name: "Tiburón DarkNet", color: "#006064", body: "🦈" },
-    { id: 10, emoji: "🐉", name: "Dragón Firewall", color: "#880e4f", body: "🐉" },
-    { id: 11, emoji: "🦉", name: "Búho AI-Zero", color: "#4a148c", body: "🦉" },
-    { id: 12, emoji: "🐬", name: "Delfín Matrix", color: "#01579b", body: "🐬" },
-    { id: 13, emoji: "🦂", name: "Escorpión Hex", color: "#33691e", body: "🦂" },
-    { id: 14, emoji: "🦏", name: "Rhino Fortress", color: "#37474f", body: "🦏" },
-    { id: 15, emoji: "🐦‍⬛", name: "Cuervo Darkweb", color: "#212121", body: "🐦‍⬛" },
-    { id: 16, emoji: "🦋", name: "Mariposa Zero-Day", color: "#ad1457", body: "🦋" },
+    { id: 1,  name: "CyberWolf Delta",    color: "#1565c0", emoji: "🐺",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=CyberWolfDelta&backgroundColor=1565c0&backgroundType=gradientLinear" },
+    { id: 2,  name: "Tigre Quantum",      color: "#b71c1c", emoji: "🐯",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=TigreQuantum&backgroundColor=b71c1c&backgroundType=gradientLinear" },
+    { id: 3,  name: "Búho AI-Zero",       color: "#4a148c", emoji: "🦉",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=BuhoAIZero&backgroundColor=4a148c&backgroundType=gradientLinear" },
+    { id: 4,  name: "Zorro Neural",       color: "#bf360c", emoji: "🦊",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=ZorroNeural&backgroundColor=bf360c&backgroundType=gradientLinear" },
+    { id: 5,  name: "León Cipher",        color: "#e65100", emoji: "🦁",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=LeonCipher&backgroundColor=e65100&backgroundType=gradientLinear" },
+    { id: 6,  name: "Dragón Firewall",    color: "#880e4f", emoji: "🐉",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=DragonFirewall&backgroundColor=880e4f&backgroundType=gradientLinear" },
+    { id: 7,  name: "Oso Forense",        color: "#3e2723", emoji: "🐻",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=OsoForense&backgroundColor=3e2723&backgroundType=gradientLinear" },
+    { id: 8,  name: "Halcón OSINT",       color: "#0d47a1", emoji: "🦅",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=HalconOSINT&backgroundColor=0d47a1&backgroundType=gradientLinear" },
+    { id: 9,  name: "Lobo Phantom",       color: "#004d40", emoji: "🐺",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=LoboPhantom&backgroundColor=004d40&backgroundType=gradientLinear" },
+    { id: 10, name: "Escorpión Hex",      color: "#33691e", emoji: "🦂",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=EscorpionHex&backgroundColor=33691e&backgroundType=gradientLinear" },
+    { id: 11, name: "Rinoceronte Fortress", color: "#37474f", emoji: "🦏",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=RinoFortress&backgroundColor=37474f&backgroundType=gradientLinear" },
+    { id: 12, name: "Delfín Matrix",      color: "#01579b", emoji: "🐬",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=DelfinMatrix&backgroundColor=01579b&backgroundType=gradientLinear" },
+    { id: 13, name: "Pantera Stealth",    color: "#212121", emoji: "🐆",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=PanteraStealth&backgroundColor=212121&backgroundType=gradientLinear" },
+    { id: 14, name: "Cobra DarkNet",      color: "#006064", emoji: "🐍",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=CobraDarkNet&backgroundColor=006064&backgroundType=gradientLinear" },
+    { id: 15, name: "Mariposa Zero-Day",  color: "#ad1457", emoji: "🦋",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=MariposaZeroDay&backgroundColor=ad1457&backgroundType=gradientLinear" },
+    { id: 16, name: "Águila CiberOps",    color: "#1a237e", emoji: "🦅",
+      img: "https://api.dicebear.com/9.x/adventurer/svg?seed=AguilaCiberOps&backgroundColor=1a237e&backgroundType=gradientLinear" },
   ];
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
@@ -789,9 +805,10 @@ export default function App() {
     const user = auth.currentUser;
     if (!user) { console.error("saveScore: no user"); return; }
     const avatarEmoji = avatar ? avatar.emoji : "";
+    const avatarId = avatar ? String(avatar.id) : "";
     const displayName = avatarName ? avatarName : (user.displayName || user.email);
-    // Store avatar emoji in username with separator so ranking can display it
-    const usernameWithAvatar = avatarEmoji ? avatarEmoji + "|" + displayName : displayName;
+    // Store avatar ID + username: "ID:1|username" for image lookup in ranking
+    const usernameWithAvatar = avatarId ? "ID:" + avatarId + "|" + displayName : displayName;
     console.log("saveScore:", { usernameWithAvatar, finalScore, finalPoints, filterUsed });
     const payload = {
       username: usernameWithAvatar,
@@ -894,9 +911,9 @@ export default function App() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 24 }}>
             {AVATARS.map(av => (
               <button key={av.id} onClick={() => setTempAvatar(av)}
-                style={{ background: tempAvatar?.id === av.id ? av.color : "rgba(255,255,255,0.05)", border: tempAvatar?.id === av.id ? "2px solid #f5d060" : "1px solid rgba(255,255,255,0.15)", borderRadius: 12, padding: "12px 6px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", transform: tempAvatar?.id === av.id ? "scale(1.08)" : "scale(1)" }}>
-                <div style={{ fontSize: 28, marginBottom: 4 }}>{av.emoji}</div>
-                <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 9, fontWeight: 700, lineHeight: 1.2 }}>{av.name}</div>
+                style={{ background: tempAvatar?.id === av.id ? av.color + "66" : "rgba(255,255,255,0.04)", border: tempAvatar?.id === av.id ? "2px solid #f5d060" : "1px solid rgba(255,255,255,0.12)", borderRadius: 14, padding: "8px 4px 6px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", transform: tempAvatar?.id === av.id ? "scale(1.1)" : "scale(1)", boxShadow: tempAvatar?.id === av.id ? `0 0 16px ${av.color}88` : "none" }}>
+                <img src={av.img} alt={av.name} style={{ width: 52, height: 52, borderRadius: 8, display: "block", margin: "0 auto 4px" }} />
+                <div style={{ color: tempAvatar?.id === av.id ? "#f5d060" : "rgba(255,255,255,0.7)", fontSize: 8, fontWeight: 700, lineHeight: 1.2, padding: "0 2px" }}>{av.name}</div>
               </button>
             ))}
           </div>
@@ -939,14 +956,17 @@ export default function App() {
         }} />
         {/* Body full */}
         <div style={{
-          fontSize: 72,
           animation: "avatarFloat 2.2s ease-in-out infinite",
           filter: `drop-shadow(0 6px 18px ${avatar.color}bb)`,
-          lineHeight: 1,
           position: "relative",
           zIndex: 2,
         }}>
-          {avatar.emoji}
+          {avatar.img ? (
+            <img src={avatar.img} alt={avatar.name}
+              style={{ width: 90, height: 90, borderRadius: 16, border: `2px solid ${avatar.color}`, display: "block" }} />
+          ) : (
+            <span style={{ fontSize: 72, lineHeight: 1 }}>{avatar.emoji}</span>
+          )}
         </div>
         {/* Shadow */}
         <div style={{
@@ -1046,8 +1066,12 @@ export default function App() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {avatar && (
-              <div style={{ display: "flex", alignItems: "center", gap: 6, background: avatar.color, borderRadius: 20, padding: "5px 12px" }}>
-                <span style={{ fontSize: 16 }}>{avatar.emoji}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: avatar.color + "cc", borderRadius: 20, padding: "4px 12px 4px 4px", border: "1px solid rgba(255,255,255,0.2)" }}>
+                {avatar.img ? (
+                  <img src={avatar.img} alt={avatar.name} style={{ width: 28, height: 28, borderRadius: 10, border: "1px solid rgba(255,255,255,0.4)" }} />
+                ) : (
+                  <span style={{ fontSize: 18 }}>{avatar.emoji}</span>
+                )}
                 <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{avatarName}</span>
               </div>
             )}
@@ -1358,8 +1382,23 @@ export default function App() {
                       {idx < 3 ? medals[idx] : `#${idx+1}`}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        {(() => { const parts = entry.username.split("|"); const hasAvatar = parts.length === 2; return (<><span style={{ fontSize: 20 }}>{hasAvatar ? parts[0] : "🐾"}</span><span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{hasAvatar ? parts[1] : entry.username}</span></>); })()}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                        {(() => {
+                          const parts = entry.username.split("|");
+                          const hasAvatar = parts.length === 2;
+                          const prefix = hasAvatar ? parts[0] : null;
+                          const displayName = hasAvatar ? parts[1] : entry.username;
+                          const avatarId = prefix && prefix.startsWith("ID:") ? parseInt(prefix.replace("ID:","")) : null;
+                          const matchedAv = avatarId ? AVATARS.find(a => a.id === avatarId) : (prefix ? AVATARS.find(a => a.emoji === prefix) : null);
+                          return (<>
+                            {matchedAv ? (
+                              <img src={matchedAv.img} alt={matchedAv.name} style={{ width: 40, height: 40, borderRadius: 10, border: `2px solid ${matchedAv.color}`, flexShrink: 0 }} />
+                            ) : (
+                              <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{emojiChar || "🐾"}</div>
+                            )}
+                            <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{displayName}</span>
+                          </>);
+                        })()}
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
                     </div>
