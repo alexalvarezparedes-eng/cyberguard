@@ -618,12 +618,10 @@ export default function App() {
   const [bestStreak, setBestStreak] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [filter, setFilter] = useState("TODOS");
-  const [chatHistory, setChatHistory] = useState([]);
-  const [userQ, setUserQ] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
   const [tipIdx, setTipIdx] = useState(0);
   const [showBadge, setShowBadge] = useState(false);
   const [rankingData, setRankingData] = useState([]);
+  const [rankingCategory, setRankingCategory] = useState("TODOS");
   const [avatar, setAvatar] = useState(null);
   const [avatarName, setAvatarName] = useState("");
   const [showAvatar, setShowAvatar] = useState(false);
@@ -631,7 +629,6 @@ export default function App() {
   const [tempName, setTempName] = useState("");
   const [nameError, setNameError] = useState(false);
   const [activeBlock, setActiveBlock] = useState(null);
-  const chatEndRef = useRef(null);
 
   const BLOCKS = [
     { id: "Phishing", name: "Phishing", icon: "🎣", color: "#c62828", bg: "#ffebee" },
@@ -664,7 +661,9 @@ export default function App() {
 
   const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
-    return shuffle([...base]).map(s => ({ ...s, options: shuffle([...s.options]) }));
+    const diffOrder = { "FÁCIL": 1, "MEDIO": 2, "DIFÍCIL": 3 };
+    const sorted = [...base].sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
+    return sorted.map(s => ({ ...s, options: shuffle([...s.options]) }));
   };
 
   // filteredScenarios para compatibilidad con resultados
@@ -674,8 +673,6 @@ export default function App() {
     const iv = setInterval(() => setTipIdx(i => (i + 1) % TIPS.length), 5000);
     return () => clearInterval(iv);
   }, []);
-
-  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatHistory, aiLoading]);
 
   const stopTimer = () => {};
   const startTimer = () => {};
@@ -762,49 +759,23 @@ export default function App() {
     } catch(e) { console.error("saveScore error:", e); }
   };
 
-  const askAI = async () => {
-    if (!userQ.trim() || aiLoading) return;
-    const question = userQ.trim();
-    setUserQ("");
-    setChatHistory(h => [...h, { role: "user", text: question }]);
-    setAiLoading(true);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: `Eres CyberEscudo FAE AI, experto en ciberseguridad amigable y directo. Educas sobre seguridad digital de forma clara y práctica. Responde en español, conciso (máximo 3 párrafos). Usa emojis ocasionalmente.`,
-          messages: [
-            ...chatHistory.map(m => ({ role: m.role === "user" ? "user" : "assistant", content: m.text })),
-            { role: "user", content: question },
-          ],
-        }),
-      });
-      const data = await res.json();
-      const answer = data.content?.map(b => b.text || "").join("") || "No pude procesar tu pregunta.";
-      setChatHistory(h => [...h, { role: "assistant", text: answer }]);
-    } catch {
-      setChatHistory(h => [...h, { role: "assistant", text: "⚠️ Error de conexión. Intenta de nuevo." }]);
-    }
-    setAiLoading(false);
-  };
 
-  const loadRanking = async () => {
+
+  const loadRanking = async (cat) => {
     stopTimer();
     setQuizScenarios([]);
     setCurrentIdx(0);
     setSelected(null);
     setShowResult(false);
     setRankingData([]);
+    setRankingCategory(cat || activeBlock || "TODOS");
     setScreen("ranking");
     try {
-      const { data } = await supabase
-        .from("ranking")
-        .select("*")
-        .order("points", { ascending: false })
-        .limit(10);
+      let query = supabase.from("ranking").select("*").order("points", { ascending: false }).limit(10);
+      if (cat && cat !== "TODOS") {
+        query = query.eq("category", cat);
+      }
+      const { data } = await query;
       setRankingData(data || []);
     } catch (e) {
       console.error("Error cargando ranking:", e);
@@ -897,115 +868,103 @@ export default function App() {
   const diffBg = (d) => d === "FÁCIL" ? "#e8f5e9" : d === "MEDIO" ? "#fff8e1" : "#ffebee";
 
   // ===== PANTALLA: HOME =====
-
-  if (screen === "home") return (
-    <div style={wrap} translate="no">
-      <div style={cont}>
-        <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 12, marginBottom: 8 }}>
+  if (screen === "home") {
+    const totalQuestions = SCENARIOS.length;
+    const cats = BLOCKS.length;
+    return (
+      <div translate="no" style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0a1628 0%,#0d2347 50%,#071020 100%)", color: "#fff", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {avatar && <div style={{ display: "flex", alignItems: "center", gap: 6, background: avatar.color, borderRadius: 20, padding: "4px 12px" }}>
-              <span style={{ fontSize: 18 }}>{avatar.emoji}</span>
-              <span style={{ color: "white", fontSize: 12, fontWeight: 700 }}>{avatarName}</span>
-            </div>}
-            <button style={btn("dim")} onClick={handleLogout}>🔓 Cerrar sesión</button>
+            <img src={SELLO_JECIB} alt="JECIB" style={{ width: 40, height: 40, objectFit: "contain" }} />
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: "#f5d060", letterSpacing: 2 }}>CYBERESCUDO</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", letterSpacing: 3 }}>FAE</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {avatar && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, background: avatar.color, borderRadius: 20, padding: "5px 12px" }}>
+                <span style={{ fontSize: 16 }}>{avatar.emoji}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{avatarName}</span>
+              </div>
+            )}
+            <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "6px 12px", color: "rgba(255,255,255,0.6)", fontSize: 12, cursor: "pointer" }}>Salir</button>
           </div>
         </div>
-        <div style={{ textAlign: "center", padding: "16px 0 24px" }}>
-          <img src={SELLO_JECIB} alt="Sello JECIB FAE" style={{ width: 130, height: 130, objectFit: "contain", marginBottom: 12 }} />
-          <h1 style={{ fontSize: "clamp(24px,6vw,48px)", fontWeight: 900, margin: "0 0 4px", color: C.green, letterSpacing: "0.05em" }}>
-            CYBER<span style={{ color: C.accent }}>ESCUDO</span>
-            <span style={{ color: C.dim, fontSize: "0.45em", display: "block", letterSpacing: "0.3em", fontWeight: 600, marginTop: 2 }}>FAE</span>
+
+        {/* Hero */}
+        <div style={{ textAlign: "center", padding: "36px 20px 24px" }}>
+          <img src={SELLO_JECIB} alt="Sello JECIB FAE" style={{ width: 110, height: 110, objectFit: "contain", marginBottom: 16, filter: "drop-shadow(0 0 20px rgba(245,208,96,0.4))" }} />
+          <h1 style={{ fontSize: "clamp(28px,8vw,52px)", fontWeight: 900, margin: "0 0 6px", color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>
+            CYBER<span style={{ color: "#f5d060" }}>ESCUDO</span>
           </h1>
-          <p style={{ color: C.dim, fontSize: 13, marginBottom: 28 }}>Entrenamiento en Seguridad Digital · {SCENARIOS.length} escenarios reales</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 10, marginBottom: 28 }}>
-            {[{ icon: "🎯", n: SCENARIOS.length, label: "Escenarios" }, { icon: "🏆", n: "2650+", label: "Puntos max" }, { icon: "🤖", n: "IA", label: "Experta 24/7" }, { icon: "📊", n: "7", label: "Categorías" }].map(x => (
-              <div key={x.label} style={{ ...card, padding: "14px 10px", textAlign: "center" }}>
-                <div style={{ fontSize: 26, marginBottom: 4 }}>{x.icon}</div>
-                <div style={{ color: C.green, fontSize: 20, fontWeight: 900 }}>{x.n}</div>
-                <div style={{ color: C.dim, fontSize: 11 }}>{x.label}</div>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginBottom: 28, letterSpacing: 3 }}>FUERZA AÉREA ECUATORIANA</p>
+
+          {/* Stats row */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 32, flexWrap: "wrap" }}>
+            {[
+              { n: totalQuestions, label: "Preguntas", icon: "🎯" },
+              { n: cats, label: "Categorías", icon: "📚" },
+              { n: "60s", label: "Por pregunta", icon: "⏱" },
+            ].map(x => (
+              <div key={x.label} style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>{x.icon}</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#f5d060" }}>{x.n}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>{x.label}</div>
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginBottom: 28 }}>
-            <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); startTimer(); }}>▶ Iniciar Entrenamiento</button>
-            <button style={btn("ghost")} onClick={() => setScreen("selector")}>📋 Elegir Categoría</button>
-            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
-          </div>
-        </div>
-        <div style={{ ...card, padding: "14px 18px", marginBottom: 14, borderLeft: `4px solid ${C.greenLight}` }}>
-          <div style={{ color: C.green, fontSize: 11, fontWeight: 700, letterSpacing: "0.2em", marginBottom: 8 }}>💡 TIP DEL DÍA</div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <span style={{ fontSize: 26, flexShrink: 0 }}>{TIPS[tipIdx].icon}</span>
-            <div>
-              <div style={{ color: C.mid, fontSize: 13, fontWeight: 700 }}>{TIPS[tipIdx].title}</div>
-              <div style={{ color: C.dim, fontSize: 12, marginTop: 2 }}>{TIPS[tipIdx].desc}</div>
+
+          {/* Tip del día */}
+          <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: "14px 18px", marginBottom: 28, textAlign: "left", maxWidth: 480, margin: "0 auto 28px" }}>
+            <div style={{ fontSize: 10, color: "#f5d060", fontWeight: 700, letterSpacing: 2, marginBottom: 8 }}>💡 TIP DE SEGURIDAD</div>
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <span style={{ fontSize: 24 }}>{TIPS[tipIdx].icon}</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 2 }}>{TIPS[tipIdx].title}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{TIPS[tipIdx].desc}</div>
+              </div>
             </div>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 8 }}>
-          {SCENARIOS.map(s => (
-            <button key={s.id} onClick={() => { const q = buildQuiz(s.category); setQuizScenarios(q); resetCounters(); setFilter(s.category); setActiveBlock(s.category); setScreen("quiz"); startTimer(); }}
-              style={{ ...card, padding: "12px 10px", cursor: "pointer", textAlign: "left", border: `1px solid ${C.border}` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <span style={{ fontSize: 20 }}>{s.icon}</span>
-                <span style={{ fontSize: 9, color: diffColor(s.difficulty), background: diffBg(s.difficulty), padding: "2px 7px", borderRadius: 10, fontWeight: 700 }}>{s.difficulty}</span>
-              </div>
-              <div style={{ color: C.mid, fontSize: 11, fontWeight: 700 }}>{s.title}</div>
-              <div style={{ color: C.dim, fontSize: 10, marginTop: 2 }}>{s.category}</div>
-            </button>
-          ))}
+
+        {/* Bloques de categorías */}
+        <div style={{ padding: "0 16px 32px" }}>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 3, textAlign: "center", marginBottom: 16 }}>ELIGE TU BLOQUE DE ENTRENAMIENTO</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(155px,1fr))", gap: 12, maxWidth: 800, margin: "0 auto" }}>
+            {BLOCKS.map(block => {
+              const count = SCENARIOS.filter(s => s.category === block.id).length;
+              return (
+                <button key={block.id}
+                  onClick={() => {
+                    const q = buildQuiz(block.id);
+                    setQuizScenarios(q);
+                    resetCounters();
+                    setFilter(block.id);
+                    setActiveBlock(block.id);
+                    setScreen("quiz");
+                    startTimer();
+                  }}
+                  style={{ background: `linear-gradient(135deg,${block.color}22,${block.color}44)`, border: `1.5px solid ${block.color}66`, borderRadius: 16, padding: "18px 12px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", position: "relative", overflow: "hidden" }}>
+                  <div style={{ fontSize: 34, marginBottom: 8 }}>{block.icon}</div>
+                  <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{block.name}</div>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 10 }}>{count} preguntas</div>
+                  <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+                    <div onClick={e => { e.stopPropagation(); loadRanking(block.id); }} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 6, padding: "3px 8px", fontSize: 9, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>🏆 Ranking</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   // ===== PANTALLA: BLOQUES =====
-  if (screen === "selector") return (
-    <div style={wrap} translate="no">
-      <div style={cont}>
-        <div style={{ paddingTop: 20, marginBottom: 20 }}><button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button></div>
-        <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Escoge tu Bloque</h2>
-        <p style={{ color: C.dim, fontSize: 12, marginBottom: 20 }}>Cada bloque tiene preguntas aleatorias · 15 segundos por pregunta</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12, marginBottom: 16 }}>
-          {BLOCKS.map(block => {
-            const count = SCENARIOS.filter(s => s.category === block.id).length;
-            return (
-              <button key={block.id}
-                onClick={() => {
-                  const q = buildQuiz(block.id);
-                  setQuizScenarios(q);
-                  resetCounters();
-                  setFilter(block.id);
-                  setActiveBlock(block.id);
-                  setScreen("quiz");
-                  startTimer();
-                }}
-                style={{ background: block.bg, border: `2px solid ${block.color}`, borderRadius: 14, padding: "20px 14px", cursor: "pointer", textAlign: "center", transition: "transform 0.15s" }}>
-                <div style={{ fontSize: 36, marginBottom: 8 }}>{block.icon}</div>
-                <div style={{ color: block.color, fontSize: 13, fontWeight: 900, marginBottom: 4 }}>{block.name}</div>
-                <div style={{ color: "#757575", fontSize: 11 }}>{count} preguntas</div>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          onClick={() => {
-            const q = buildQuiz("TODOS");
-            setQuizScenarios(q);
-            resetCounters();
-            setFilter("TODOS");
-            setActiveBlock("TODOS");
-            setScreen("quiz");
-            startTimer();
-          }}
-          style={{ width: "100%", background: "linear-gradient(135deg,#f57f17,#ffa726)", border: "none", borderRadius: 14, padding: "20px", cursor: "pointer", textAlign: "center" }}>
-          <div style={{ fontSize: 36, marginBottom: 6 }}>🏆</div>
-          <div style={{ color: "#fff", fontSize: 15, fontWeight: 900, marginBottom: 4 }}>TODAS LAS CATEGORÍAS</div>
-          <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 12 }}>{SCENARIOS.length} preguntas aleatorias</div>
-        </button>
-      </div>
-    </div>
-  );
+
+
 
   // ===== PANTALLA: QUIZ =====
   if (screen === "quiz") {
@@ -1046,7 +1005,7 @@ export default function App() {
             <div style={{ flex: 1, height: 8, background: "#e0e0e0", borderRadius: 4, overflow: "hidden" }}>
               <div style={{ height: "100%", borderRadius: 4, width: "100%", background: "#4caf50" }} />
             </div>
-            <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>⏱ 40 seg</div>
+            <div style={{ fontSize: 11, color: C.dim, minWidth: 40, textAlign: "right" }}>⏱ 60 seg</div>
           </div>
           <div style={{ ...card, padding: "20px" }}>
             <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
@@ -1096,7 +1055,7 @@ export default function App() {
             {showResult && (
               <div style={{ display: "flex", gap: 10 }}>
                 <button style={{ ...btn("primary"), flex: 1 }} onClick={nextScenario}>{currentIdx < quizScenarios.length - 1 ? "SIGUIENTE →" : "VER RESULTADOS →"}</button>
-                <button style={btn("ghost")} onClick={() => setScreen("chat")}>🤖 IA</button>
+                
               </div>
             )}
           </div>
@@ -1143,8 +1102,8 @@ export default function App() {
           )}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
             <button style={btn("primary")} onClick={() => { const q = buildQuiz(filter); setQuizScenarios(q); resetCounters(); setScreen("quiz"); startTimer(); }}>↺ Repetir</button>
-            <button style={btn("ghost")} onClick={() => { goHome(); setScreen("selector"); }}>📋 Otra Categoría</button>
-            <button style={btn("ghost")} onClick={loadRanking}>🏆 Ranking</button>
+            <button style={btn("ghost")} onClick={goHome}>📋 Inicio</button>
+            <button style={btn("ghost")} onClick={() => loadRanking(activeBlock)}>🏆 Ranking</button>
             <button style={btn("dim")} onClick={goHome}>⌂ Inicio</button>
           </div>
         </div>
@@ -1153,96 +1112,72 @@ export default function App() {
   }
 
   // ===== PANTALLA: RANKING =====
-  if (screen === "ranking") return (
-    <div style={wrap} translate="no">
-      <div style={cont}>
-        <div style={{ paddingTop: 20, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <button style={btn("dim")} onClick={() => setScreen("home")}>← Volver</button>
-          <h2 style={{ color: C.green, fontSize: 20, fontWeight: 800, margin: 0 }}>🏆 Top 10 Ranking</h2>
-          <div style={{ width: 80 }} />
-        </div>
-        <div style={{ ...card, padding: 0, overflow: "hidden" }}>
+  if (screen === "ranking") {
+    const block = BLOCKS.find(b => b.id === rankingCategory);
+    return (
+      <div translate="no" style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0a1628,#0d2347,#071020)", color: "#fff", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto", padding: "20px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+            <button onClick={goHome} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 14px", color: "#fff", fontSize: 12, cursor: "pointer" }}>← Inicio</button>
+            <div style={{ flex: 1, textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>RANKING</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: "#f5d060" }}>
+                {block ? block.icon + " " + block.name : "🏆 General"}
+              </div>
+            </div>
+            <div style={{ width: 80 }} />
+          </div>
+
           {rankingData.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 40, color: C.dim }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🎯</div>
-              <p>Aún no hay puntajes registrados.</p>
-              <p style={{ fontSize: 12 }}>¡Sé el primero en completar un entrenamiento!</p>
+            <div style={{ textAlign: "center", padding: "60px 20px", background: "rgba(255,255,255,0.04)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>🎯</div>
+              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Sin puntajes aún</div>
+              <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>¡Sé el primero en completar este bloque!</div>
             </div>
           ) : (
-            rankingData.map((entry, idx) => (
-              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: idx < rankingData.length - 1 ? `1px solid ${C.border}` : "none", background: idx === 0 ? "#fff8e1" : idx === 1 ? "#f5f5f5" : idx === 2 ? "#fff3e0" : C.panel }}>
-                <div style={{ fontSize: 24, width: 36, textAlign: "center" }}>
-                  {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ color: C.mid, fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
-                </div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ color: C.green, fontWeight: 900, fontSize: 16 }}>★ {entry.points}</div>
-                  <div style={{ color: C.dim, fontSize: 11 }}>{entry.score} correctas</div>
-                </div>
-              </div>
-            ))
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {rankingData.map((entry, idx) => {
+                const medals = ["🥇","🥈","🥉"];
+                const bgColors = ["rgba(255,208,0,0.12)","rgba(192,192,192,0.1)","rgba(205,127,50,0.1)"];
+                const borderColors = ["rgba(255,208,0,0.4)","rgba(192,192,192,0.3)","rgba(205,127,50,0.3)"];
+                return (
+                  <div key={idx} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: idx < 3 ? bgColors[idx] : "rgba(255,255,255,0.04)", border: `1px solid ${idx < 3 ? borderColors[idx] : "rgba(255,255,255,0.08)"}`, borderRadius: 12 }}>
+                    <div style={{ fontSize: 22, width: 36, textAlign: "center", fontWeight: 900, color: idx < 3 ? "#f5d060" : "rgba(255,255,255,0.3)" }}>
+                      {idx < 3 ? medals[idx] : `#${idx+1}`}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                        {entry.avatar && <span style={{ fontSize: 18 }}>{entry.avatar}</span>}
+                        <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
+                      </div>
+                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ color: "#f5d060", fontWeight: 900, fontSize: 18 }}>{entry.points}</div>
+                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.score} correctas</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
-        </div>
-        <div style={{ textAlign: "center", marginTop: 20 }}>
-          <button style={btn("primary")} onClick={() => { const q = buildQuiz("TODOS"); setQuizScenarios(q); resetCounters(); setFilter("TODOS"); setActiveBlock("TODOS"); setScreen("quiz"); startTimer(); }}>▶ Jugar Ahora</button>
-        </div>
-      </div>
-    </div>
-  );
 
-  // ===== PANTALLA: CHAT =====
-  if (screen !== "chat") return null;
-  const QUICK_Q = ["¿Cómo sé si me hackearon?", "¿Qué VPN me recomiendas?", "¿Cómo protejo mi WhatsApp?", "¿Es seguro el WiFi de mi trabajo?", "¿Qué hago si caí en phishing?"];
-  return (
-    <div translate="no" style={{ ...wrap, display: "flex", flexDirection: "column", height: "100vh" }}>
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 16px", flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 0", borderBottom: `1px solid ${C.border}`, marginBottom: 14, flexShrink: 0 }}>
-          <button style={btn("dim", { padding: "6px 12px" })} onClick={() => setScreen("home")}>←</button>
-          <span style={{ fontSize: 22 }}>🤖</span>
-          <div>
-            <div style={{ color: C.green, fontSize: 13, fontWeight: 800 }}>CyberEscudo FAE IA</div>
-            <div style={{ color: C.greenLight, fontSize: 10, fontWeight: 600 }}>● EN LÍNEA</div>
-          </div>
-        </div>
-        <div style={{ flex: 1, overflowY: "auto", paddingBottom: 12 }}>
-          {chatHistory.length === 0 && (
-            <div style={{ textAlign: "center", padding: "20px 0 16px" }}>
-              <div style={{ color: C.dim, fontSize: 12, marginBottom: 14, fontWeight: 600 }}>PREGUNTAS FRECUENTES</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7, maxWidth: 420, margin: "0 auto" }}>
-                {QUICK_Q.map(q => (
-                  <button key={q} onClick={() => setUserQ(q)} style={{ ...card, color: C.mid, borderRadius: 8, padding: "10px 14px", fontSize: 12, cursor: "pointer", textAlign: "left" }}>💬 {q}</button>
-                ))}
-              </div>
-            </div>
-          )}
-          {chatHistory.map((msg, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", marginBottom: 10 }}>
-              <div style={{ maxWidth: "84%", background: msg.role === "user" ? C.greenPale : C.panel, border: `1px solid ${msg.role === "user" ? C.greenMid : C.border}`, borderRadius: msg.role === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px", padding: "10px 14px", fontSize: 12, lineHeight: 1.7, color: C.mid, boxShadow: C.shadow, whiteSpace: "pre-wrap" }}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {aiLoading && (
-            <div style={{ display: "flex", gap: 5, padding: "8px 4px", alignItems: "center" }}>
-              <span style={{ color: C.dim, fontSize: 11 }}>Analizando</span>
-              {[0, 1, 2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: C.green, animation: `pulse 1s ${i * 0.2}s infinite` }} />)}
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 10, paddingBottom: 12, flexShrink: 0 }}>
-          <div style={{ display: "flex", gap: 8 }}>
-            <input value={userQ} onChange={e => setUserQ(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && askAI()} placeholder="Pregunta sobre ciberseguridad..." style={{ flex: 1, background: "#fff", border: `1.5px solid ${C.border}`, borderRadius: 8, padding: "10px 14px", color: C.mid, fontSize: 12, outline: "none" }} />
-            <button onClick={askAI} disabled={aiLoading || !userQ.trim()} style={{ ...btn("primary", { padding: "10px 18px" }), opacity: aiLoading || !userQ.trim() ? 0.4 : 1 }}>→</button>
+          <div style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "center" }}>
+            <button onClick={() => {
+              const cat = rankingCategory;
+              const q = buildQuiz(cat !== "TODOS" ? cat : "TODOS");
+              setQuizScenarios(q);
+              resetCounters();
+              setFilter(cat !== "TODOS" ? cat : "TODOS");
+              setActiveBlock(cat !== "TODOS" ? cat : "TODOS");
+              setScreen("quiz");
+              startTimer();
+            }} style={{ background: "linear-gradient(135deg,#2e7d32,#4caf50)", border: "none", borderRadius: 10, padding: "12px 24px", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              Jugar este bloque
+            </button>
           </div>
         </div>
       </div>
-      <style>{`@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}} `}</style>
-    </div>
-  );
+    );
+  }
 }
