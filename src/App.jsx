@@ -809,15 +809,30 @@ export default function App() {
     setSelected(null);
     setShowResult(false);
     setRankingData([]);
-    setRankingCategory(cat || activeBlock || "TODOS");
+    const finalCat = cat || activeBlock || "TODOS";
+    setRankingCategory(finalCat);
     setScreen("ranking");
     try {
-      let query = supabase.from("ranking").select("*").order("points", { ascending: false }).limit(10);
-      if (cat && cat !== "TODOS") {
+      const isGeneral = !cat || cat === "TODOS";
+      const limit = isGeneral ? 50 : 30;
+      let query = supabase.from("ranking").select("*").order("points", { ascending: false }).limit(limit);
+      if (!isGeneral) {
         query = query.eq("category", cat);
       }
       const { data } = await query;
-      setRankingData(data || []);
+      if (!data) { setRankingData([]); return; }
+      // Deduplicate: keep best score per email+category
+      const seen = {};
+      const deduped = [];
+      for (const entry of data) {
+        const key = isGeneral ? entry.email : entry.email + "|" + entry.category;
+        if (!seen[key]) {
+          seen[key] = true;
+          deduped.push(entry);
+        }
+      }
+      const finalLimit = isGeneral ? 15 : 10;
+      setRankingData(deduped.slice(0, finalLimit));
     } catch (e) {
       console.error("Error cargando ranking:", e);
     }
@@ -878,6 +893,64 @@ export default function App() {
     );
   }
 
+  // ===== AVATAR FLOTANTE ANIMADO =====
+  const FloatingAvatar = () => {
+    if (!avatar) return null;
+    const avatarBodies = {
+      "🦅": "🦅", "🦉": "🦉", "🐺": "🐺", "🦊": "🦊", "🐯": "🐯",
+      "🦁": "🦁", "🐉": "🐉", "🦈": "🦈", "🦋": "🦋", "🐻": "🐻", "🐬": "🐬"
+    };
+    return (
+      <div style={{
+        position: "fixed", bottom: 20, right: 16, zIndex: 50,
+        display: "flex", flexDirection: "column", alignItems: "center",
+        pointerEvents: "none"
+      }}>
+        <div style={{
+          fontSize: 52,
+          animation: "avatarFloat 2.5s ease-in-out infinite, avatarSway 4s ease-in-out infinite",
+          filter: `drop-shadow(0 4px 12px ${avatar.color}88)`,
+          transformOrigin: "center bottom",
+          lineHeight: 1
+        }}>
+          {avatar.emoji}
+        </div>
+        <div style={{
+          background: avatar.color,
+          color: "#fff",
+          fontSize: 9,
+          fontWeight: 800,
+          padding: "2px 8px",
+          borderRadius: 10,
+          letterSpacing: 0.5,
+          marginTop: 4,
+          opacity: 0.9,
+          maxWidth: 80,
+          textAlign: "center",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }}>
+          {avatarName}
+        </div>
+        <style>{`
+          @keyframes avatarFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+          }
+          @keyframes avatarSway {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+          }
+          @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+          }
+        `}</style>
+      </div>
+    );
+  };
+
   const C = {
     green: "#2e7d32",
     greenLight: "#4caf50",
@@ -914,6 +987,7 @@ export default function App() {
     const cats = BLOCKS.length;
     return (
       <div translate="no" style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0a1628 0%,#0d2347 50%,#071020 100%)", color: "#fff", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+        <FloatingAvatar />
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -997,7 +1071,7 @@ export default function App() {
             <span style={{ fontSize: 28 }}>🏆</span>
             <div style={{ textAlign: "left" }}>
               <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1 }}>RANKING</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>Top 10 general</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>Top 15 · Actualización diaria</div>
             </div>
           </button>
         </div>
@@ -1031,6 +1105,19 @@ export default function App() {
             })}
           </div>
         </div>
+
+        {/* Footer IP */}
+        <div style={{ textAlign: "center", padding: "20px 16px 32px", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 8 }}>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", lineHeight: 1.8 }}>
+            🛡️ Aplicación de propiedad intelectual de la
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 700, letterSpacing: 1 }}>
+            JEFATURA DE CIBERDEFENSA FAE / CSIRT FAE
+          </div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 4, letterSpacing: 1 }}>
+            © {new Date().getFullYear()} · Todos los derechos reservados · Uso institucional
+          </div>
+        </div>
       </div>
     );
   }
@@ -1055,6 +1142,7 @@ export default function App() {
     const isCorrect = showResult && scenario.options[selected]?.correct;
     return (
       <div style={wrap}>
+        <FloatingAvatar />
         {showBadge && (
           <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%,-50%)", zIndex: 100, textAlign: "center", background: "#fff", border: `2px solid ${C.green}`, borderRadius: 16, padding: "24px 40px", boxShadow: "0 8px 32px rgba(46,125,50,0.2)" }}>
             <div style={{ fontSize: 48 }}>🔥</div>
@@ -1149,6 +1237,7 @@ export default function App() {
     });
     return (
       <div style={wrap}>
+        <FloatingAvatar />
         <div style={cont}>
           <div style={{ textAlign: "center", padding: "32px 0 24px" }}>
             <div style={{ fontSize: 56, marginBottom: 12 }}>{level.emoji}</div>
@@ -1189,13 +1278,16 @@ export default function App() {
     const block = BLOCKS.find(b => b.id === rankingCategory);
     return (
       <div translate="no" style={{ minHeight: "100vh", background: "linear-gradient(160deg,#0a1628,#0d2347,#071020)", color: "#fff", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
+        <FloatingAvatar />
         <div style={{ maxWidth: 600, margin: "0 auto", padding: "20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
             <button onClick={goHome} style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 14px", color: "#fff", fontSize: 12, cursor: "pointer" }}>← Inicio</button>
             <div style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>RANKING</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", letterSpacing: 2 }}>
+                {(!rankingCategory || rankingCategory === "TODOS") ? "TOP 15 · TODOS LOS BLOQUES" : "RANKING"}
+              </div>
               <div style={{ fontSize: 16, fontWeight: 900, color: "#f5d060" }}>
-                {rankingCategory === "SUPREMO" ? "⚔️ Reto Supremo" : block ? block.icon + " " + block.name : "🏆 Ranking General"}
+                {rankingCategory === "SUPREMO" ? "⚔️ Reto Supremo" : (!rankingCategory || rankingCategory === "TODOS") ? "🏆 Ranking General" : block ? block.icon + " " + block.name : "🏆 Ranking"}
               </div>
             </div>
             <div style={{ width: 80 }} />
