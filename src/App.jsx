@@ -646,18 +646,22 @@ export default function App() {
   ];
 
   const AVATARS = [
-    { id: 1, emoji: "🦅", name: "Águila Cyber", color: "#1565c0" },
-    { id: 2, emoji: "🦉", name: "Búho Hacker", color: "#4a148c" },
-    { id: 3, emoji: "🐺", name: "Lobo Digital", color: "#1b5e20" },
-    { id: 4, emoji: "🦊", name: "Zorro Tech", color: "#e65100" },
-    { id: 5, emoji: "🐯", name: "Tigre Firewall", color: "#b71c1c" },
-    { id: 6, emoji: "🦁", name: "León Encriptado", color: "#f57f17" },
-    { id: 7, emoji: "🐉", name: "Dragón Binario", color: "#880e4f" },
-    { id: 8, emoji: "🦈", name: "Tiburón Red", color: "#006064" },
-    { id: 9, emoji: "🦅", name: "Halcón OSINT", color: "#37474f" },
-    { id: 10, emoji: "🐻", name: "Oso Forense", color: "#3e2723" },
-    { id: 11, emoji: "🦋", name: "Mariposa Stealth", color: "#880e4f" },
-    { id: 12, emoji: "🐬", name: "Delfín Pentester", color: "#0277bd" },
+    { id: 1, emoji: "🤖", name: "CyberBot Alpha", color: "#1565c0", body: "🤖" },
+    { id: 2, emoji: "🐲", name: "Dragón NeoCyber", color: "#6a1b9a", body: "🐲" },
+    { id: 3, emoji: "🦾", name: "BioMech Wolf", color: "#1b5e20", body: "🦾" },
+    { id: 4, emoji: "🐯", name: "Tigre Quantum", color: "#b71c1c", body: "🐯" },
+    { id: 5, emoji: "🦅", name: "Águila Stealth", color: "#0d47a1", body: "🦅" },
+    { id: 6, emoji: "🦁", name: "León Cipher", color: "#e65100", body: "🦁" },
+    { id: 7, emoji: "🐺", name: "Lobo Phantom", color: "#004d40", body: "🐺" },
+    { id: 8, emoji: "🦊", name: "Zorro Neural", color: "#bf360c", body: "🦊" },
+    { id: 9, emoji: "🦈", name: "Tiburón DarkNet", color: "#006064", body: "🦈" },
+    { id: 10, emoji: "🐉", name: "Dragón Firewall", color: "#880e4f", body: "🐉" },
+    { id: 11, emoji: "🦉", name: "Búho AI-Zero", color: "#4a148c", body: "🦉" },
+    { id: 12, emoji: "🐬", name: "Delfín Matrix", color: "#01579b", body: "🐬" },
+    { id: 13, emoji: "🦂", name: "Escorpión Hex", color: "#33691e", body: "🦂" },
+    { id: 14, emoji: "🦏", name: "Rhino Fortress", color: "#37474f", body: "🦏" },
+    { id: 15, emoji: "🐦‍⬛", name: "Cuervo Darkweb", color: "#212121", body: "🐦‍⬛" },
+    { id: 16, emoji: "🦋", name: "Mariposa Zero-Day", color: "#ad1457", body: "🦋" },
   ];
 
   const CATEGORIES = ["TODOS", ...Array.from(new Set(SCENARIOS.map(s => s.category)))];
@@ -686,8 +690,12 @@ export default function App() {
   const buildQuiz = (f) => {
     const base = f === "TODOS" ? SCENARIOS : SCENARIOS.filter(s => s.category === f);
     const diffOrder = { "FÁCIL": 1, "MEDIO": 2, "DIFÍCIL": 3 };
-    const sorted = [...base].sort((a, b) => (diffOrder[a.difficulty] || 2) - (diffOrder[b.difficulty] || 2));
-    return sorted.map(s => ({ ...s, options: shuffle([...s.options]) }));
+    // Tomar 5 fáciles, 5 medias, 5 difíciles para 15 preguntas balanceadas
+    const facil = shuffle(base.filter(s => s.difficulty === "FÁCIL")).slice(0, 5);
+    const medio = shuffle(base.filter(s => s.difficulty === "MEDIO")).slice(0, 5);
+    const dificil = shuffle(base.filter(s => s.difficulty === "DIFÍCIL")).slice(0, 5);
+    const selected = [...facil, ...medio, ...dificil];
+    return selected.map(s => ({ ...s, options: shuffle([...s.options]) }));
   };
 
   // filteredScenarios para compatibilidad con resultados
@@ -816,22 +824,22 @@ export default function App() {
       const isGeneral = !cat || cat === "TODOS";
 
       if (isGeneral) {
-        // Ranking general: traer todos los registros y quedarse con el mejor por usuario
+        // Ranking general: mejor puntaje por usuario+categoría, top 15 overall
         const { data } = await supabase
           .from("ranking")
           .select("*")
           .order("points", { ascending: false })
-          .limit(200);
+          .limit(500);
         if (!data) { setRankingData([]); return; }
-        // Guardar mejor puntaje total por email (suma de todos sus bloques o su max)
+        // Mejor por email+category
         const best = {};
         for (const entry of data) {
-          const key = entry.email;
+          const key = entry.email + "|" + (entry.category || "TODOS");
           if (!best[key] || entry.points > best[key].points) {
             best[key] = entry;
           }
         }
-        // Ordenar por points descendente y tomar top 15
+        // Ordenar por points descendente, top 15
         const sorted = Object.values(best).sort((a, b) => b.points - a.points).slice(0, 15);
         setRankingData(sorted);
       } else {
@@ -916,36 +924,51 @@ export default function App() {
   // ===== AVATAR FLOTANTE ANIMADO =====
   const FloatingAvatar = () => {
     if (!avatar) return null;
-    const avatarBodies = {
-      "🦅": "🦅", "🦉": "🦉", "🐺": "🐺", "🦊": "🦊", "🐯": "🐯",
-      "🦁": "🦁", "🐉": "🐉", "🦈": "🦈", "🦋": "🦋", "🐻": "🐻", "🐬": "🐬"
-    };
     return (
       <div style={{
-        position: "fixed", bottom: 20, right: 16, zIndex: 50,
+        position: "fixed", bottom: 16, right: 16, zIndex: 999,
         display: "flex", flexDirection: "column", alignItems: "center",
-        pointerEvents: "none"
+        pointerEvents: "none", userSelect: "none"
       }}>
+        {/* Aura glowing */}
         <div style={{
-          fontSize: 52,
-          animation: "avatarFloat 2.5s ease-in-out infinite, avatarSway 4s ease-in-out infinite",
-          filter: `drop-shadow(0 4px 12px ${avatar.color}88)`,
-          transformOrigin: "center bottom",
-          lineHeight: 1
+          position: "absolute", bottom: 28, width: 90, height: 90,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${avatar.color}44 0%, transparent 70%)`,
+          animation: "avatarGlow 2.5s ease-in-out infinite",
+        }} />
+        {/* Body full */}
+        <div style={{
+          fontSize: 72,
+          animation: "avatarFloat 2.2s ease-in-out infinite",
+          filter: `drop-shadow(0 6px 18px ${avatar.color}bb)`,
+          lineHeight: 1,
+          position: "relative",
+          zIndex: 2,
         }}>
           {avatar.emoji}
         </div>
+        {/* Shadow */}
         <div style={{
-          background: avatar.color,
+          width: 50, height: 10,
+          background: `radial-gradient(ellipse, ${avatar.color}66 0%, transparent 70%)`,
+          borderRadius: "50%",
+          animation: "avatarShadow 2.2s ease-in-out infinite",
+          marginTop: -4,
+        }} />
+        {/* Name badge */}
+        <div style={{
+          background: `linear-gradient(135deg, ${avatar.color}, ${avatar.color}cc)`,
           color: "#fff",
-          fontSize: 9,
-          fontWeight: 800,
-          padding: "2px 8px",
-          borderRadius: 10,
+          fontSize: 10,
+          fontWeight: 900,
+          padding: "3px 10px",
+          borderRadius: 12,
           letterSpacing: 0.5,
           marginTop: 4,
-          opacity: 0.9,
-          maxWidth: 80,
+          border: "1px solid rgba(255,255,255,0.3)",
+          boxShadow: `0 2px 8px ${avatar.color}66`,
+          maxWidth: 100,
           textAlign: "center",
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -955,12 +978,16 @@ export default function App() {
         </div>
         <style>{`
           @keyframes avatarFloat {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-10px) scale(1.05); }
+            0%, 100% { transform: translateY(0px) scale(1) rotate(-2deg); }
+            50% { transform: translateY(-14px) scale(1.08) rotate(2deg); }
           }
-          @keyframes avatarSway {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
+          @keyframes avatarGlow {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.2); }
+          }
+          @keyframes avatarShadow {
+            0%, 100% { transform: scaleX(0.9); opacity: 0.5; }
+            50% { transform: scaleX(0.6); opacity: 0.2; }
           }
           @keyframes pulse {
             0%, 100% { opacity: 0.3; transform: scale(0.8); }
@@ -1116,7 +1143,7 @@ export default function App() {
                   style={{ background: `linear-gradient(135deg,${block.color}22,${block.color}44)`, border: `1.5px solid ${block.color}66`, borderRadius: 16, padding: "18px 12px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
                   <div style={{ fontSize: 34, marginBottom: 8 }}>{block.icon}</div>
                   <div style={{ color: "#fff", fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{block.name}</div>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 10 }}>{count} preguntas</div>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 10 }}>15 preguntas</div>
                   <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
                     <div onClick={e => { e.stopPropagation(); loadRanking(block.id); }} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 6, padding: "3px 8px", fontSize: 9, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}>🏆 Ranking</div>
                   </div>
