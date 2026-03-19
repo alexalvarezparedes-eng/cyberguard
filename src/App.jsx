@@ -814,25 +814,45 @@ export default function App() {
     setScreen("ranking");
     try {
       const isGeneral = !cat || cat === "TODOS";
-      const limit = isGeneral ? 50 : 30;
-      let query = supabase.from("ranking").select("*").order("points", { ascending: false }).limit(limit);
-      if (!isGeneral) {
-        query = query.eq("category", cat);
-      }
-      const { data } = await query;
-      if (!data) { setRankingData([]); return; }
-      // Deduplicate: keep best score per email+category
-      const seen = {};
-      const deduped = [];
-      for (const entry of data) {
-        const key = isGeneral ? entry.email : entry.email + "|" + entry.category;
-        if (!seen[key]) {
-          seen[key] = true;
-          deduped.push(entry);
+
+      if (isGeneral) {
+        // Ranking general: traer todos los registros y quedarse con el mejor por usuario
+        const { data } = await supabase
+          .from("ranking")
+          .select("*")
+          .order("points", { ascending: false })
+          .limit(200);
+        if (!data) { setRankingData([]); return; }
+        // Guardar mejor puntaje total por email (suma de todos sus bloques o su max)
+        const best = {};
+        for (const entry of data) {
+          const key = entry.email;
+          if (!best[key] || entry.points > best[key].points) {
+            best[key] = entry;
+          }
         }
+        // Ordenar por points descendente y tomar top 15
+        const sorted = Object.values(best).sort((a, b) => b.points - a.points).slice(0, 15);
+        setRankingData(sorted);
+      } else {
+        // Ranking por bloque: mejor puntaje por usuario en esa categoría
+        const { data } = await supabase
+          .from("ranking")
+          .select("*")
+          .eq("category", cat)
+          .order("points", { ascending: false })
+          .limit(100);
+        if (!data) { setRankingData([]); return; }
+        const best = {};
+        for (const entry of data) {
+          const key = entry.email;
+          if (!best[key] || entry.points > best[key].points) {
+            best[key] = entry;
+          }
+        }
+        const sorted = Object.values(best).sort((a, b) => b.points - a.points).slice(0, 10);
+        setRankingData(sorted);
       }
-      const finalLimit = isGeneral ? 15 : 10;
-      setRankingData(deduped.slice(0, finalLimit));
     } catch (e) {
       console.error("Error cargando ranking:", e);
     }
