@@ -780,16 +780,17 @@ export default function App() {
   const saveScore = async (finalScore, finalPoints, filterUsed) => {
     const user = auth.currentUser;
     if (!user) { console.error("saveScore: no user"); return; }
-    const displayName = avatarName ? avatarName : (user.displayName || user.email);
     const avatarEmoji = avatar ? avatar.emoji : "";
-    console.log("saveScore:", { displayName, finalScore, finalPoints, filterUsed, avatarEmoji });
+    const displayName = avatarName ? avatarName : (user.displayName || user.email);
+    // Store avatar emoji in username with separator so ranking can display it
+    const usernameWithAvatar = avatarEmoji ? avatarEmoji + "|" + displayName : displayName;
+    console.log("saveScore:", { usernameWithAvatar, finalScore, finalPoints, filterUsed });
     const payload = {
-      username: displayName,
+      username: usernameWithAvatar,
       email: user.email,
       score: finalScore,
       points: finalPoints,
       category: filterUsed || "TODOS",
-      avatar: avatarEmoji,
     };
     const { data, error } = await supabase.from("ranking").insert([payload]).select();
     if (error) {
@@ -1219,8 +1220,7 @@ export default function App() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                          {entry.avatar ? <span style={{ fontSize: 20 }}>{entry.avatar}</span> : <span style={{ fontSize: 20 }}>🐾</span>}
-                        <span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{entry.username}</span>
+                        {(() => { const parts = entry.username.split("|"); const hasAvatar = parts.length === 2; return (<><span style={{ fontSize: 20 }}>{hasAvatar ? parts[0] : "🐾"}</span><span style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{hasAvatar ? parts[1] : entry.username}</span></>); })()}
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
                     </div>
