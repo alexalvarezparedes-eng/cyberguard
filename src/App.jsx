@@ -606,6 +606,7 @@ const TIPS = [
   { icon: "🛡️", title: "VPN en redes públicas", desc: "Cifra tu tráfico en cafés, aeropuertos y hoteles." },
 ];
 
+// v2.1 cache-bust
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [screen, setScreen] = useState("home");
@@ -1370,21 +1371,27 @@ export default function App() {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
                         {(() => {
-                          const parts = entry.username.split("|");
-                          const hasAvatar = parts.length === 2;
-                          const prefix = hasAvatar ? parts[0] : null;
-                          const displayName = hasAvatar ? parts[1] : entry.username;
-                          const avatarId = prefix && prefix.startsWith("ID:") ? parseInt(prefix.replace("ID:","")) : null;
-                          const matchedAv = avatarId ? AVATARS.find(a => a.id === avatarId) : (prefix ? AVATARS.find(a => a.emoji === prefix) : null);
-                          return (<>
-                            <div style={{ width: 44, height: 44, borderRadius: 12, background: matchedAv ? matchedAv.color + "33" : "rgba(255,255,255,0.1)", border: `2px solid ${matchedAv ? matchedAv.color : "rgba(255,255,255,0.2)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
-                              {matchedAv ? <img src={matchedAv.img} alt={matchedAv.name} style={{ width: 42, height: 42, objectFit: "contain" }} /> : <span style={{ fontSize: 24 }}>{prefix || "🐾"}</span>}
-                            </div>
-                            <div>
-                              <div style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{displayName}</div>
-                              {matchedAv && <div style={{ color: matchedAv.color, fontSize: 9, fontFamily: "monospace", fontWeight: 700 }}>{matchedAv.rank}</div>}
-                            </div>
-                          </>);
+                          const rawName = entry.username || "";
+                          const parts = rawName.split("|");
+                          const hasTwo = parts.length === 2;
+                          const pre = hasTwo ? parts[0] : "";
+                          const uname = hasTwo ? parts[1] : rawName;
+                          const avId = pre.startsWith("ID:") ? parseInt(pre.replace("ID:", "")) : null;
+                          const av = avId ? AVATARS.find(a => a.id === avId) : null;
+                          return (
+                            <>
+                              <div style={{ width: 44, height: 44, borderRadius: 12, background: av ? av.color + "33" : "rgba(255,255,255,0.1)", border: "2px solid " + (av ? av.color : "rgba(255,255,255,0.2)"), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+                                {av
+                                  ? <img src={av.img} alt={av.name} style={{ width: 42, height: 42, objectFit: "contain" }} />
+                                  : <span style={{ fontSize: 24 }}>🐾</span>
+                                }
+                              </div>
+                              <div>
+                                <div style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{uname}</div>
+                                {av && <div style={{ color: av.color, fontSize: 9, fontFamily: "monospace", fontWeight: 700 }}>{av.rank}</div>}
+                              </div>
+                            </>
+                          );
                         })()}
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 10 }}>{entry.category === "TODOS" ? "Todas las categorías" : entry.category}</div>
