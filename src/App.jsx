@@ -1378,7 +1378,7 @@ export default function App() {
                           const matchedAv = avatarId ? AVATARS.find(a => a.id === avatarId) : (prefix ? AVATARS.find(a => a.emoji === prefix) : null);
                           return (<>
                             <div style={{ width: 44, height: 44, borderRadius: 12, background: matchedAv ? matchedAv.color + "33" : "rgba(255,255,255,0.1)", border: `2px solid ${matchedAv ? matchedAv.color : "rgba(255,255,255,0.2)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
-                              {matchedAv ? <img src={matchedAv.img} alt={matchedAv.name} style={{ width: 42, height: 42, objectFit: "contain" }} /> : <span style={{ fontSize: 24 }}>{emojiChar || "🐾"}</span>}
+                              {matchedAv ? <img src={matchedAv.img} alt={matchedAv.name} style={{ width: 42, height: 42, objectFit: "contain" }} /> : <span style={{ fontSize: 24 }}>{prefix || "🐾"}</span>}
                             </div>
                             <div>
                               <div style={{ color: "#fff", fontWeight: 700, fontSize: 13 }}>{displayName}</div>
