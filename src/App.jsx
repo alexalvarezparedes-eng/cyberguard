@@ -908,7 +908,7 @@ export default function App() {
             {AVATARS.map(av => {
               const sel = tempAvatar?.id === av.id;
               return (
-                <button key={av.id} onClick={() => setTempAvatar(av)}
+                <button key={av.id} onClick={() => { setTempAvatar(av); setTempName(av.name); setNameError(false); }}
                   style={{ background: sel ? av.color + "44" : "rgba(255,255,255,0.04)", border: sel ? `2px solid #f5d060` : `1px solid ${av.color}55`, borderRadius: 14, padding: "10px 6px 8px", cursor: "pointer", textAlign: "center", transition: "all 0.2s", transform: sel ? "scale(1.1)" : "scale(1)", boxShadow: sel ? `0 0 20px ${av.color}99` : "none", position: "relative" }}>
                   {sel && <div style={{ position:"absolute", top:4, right:4, fontSize:10 }}>✓</div>}
                   <img src={av.img} alt={av.name} style={{ width: 60, height: 60, objectFit: "contain", marginBottom: 4, filter: sel ? `drop-shadow(0 0 8px ${av.color})` : "none" }} />
@@ -922,14 +922,13 @@ export default function App() {
           </div>
           <div style={{ marginBottom: 20 }}>
             <label style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 8, letterSpacing: 1 }}>NOMBRE DE COMBATE</label>
-            <input value={tempName} onChange={e => { setTempName(e.target.value); setNameError(false); }}
-              placeholder="Ej: CyberHawk_21..."
-              maxLength={20}
-              style={{ width: "100%", background: "rgba(255,255,255,0.08)", border: nameError ? "1.5px solid #f44336" : "1.5px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "11px 14px", color: "white", fontSize: 14, outline: "none", boxSizing: "border-box" }}/>
-            {nameError && <div style={{ color: "#f44336", fontSize: 11, marginTop: 4 }}>Ingresa un nombre y selecciona un avatar</div>}
+            <div style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: nameError ? "1.5px solid #f44336" : "1.5px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "11px 14px", color: tempName ? "#f5d060" : "rgba(255,255,255,0.3)", fontSize: 14, boxSizing: "border-box", fontWeight: tempName ? 800 : 400, letterSpacing: tempName ? 1 : 0 }}>
+              {tempName || "← Selecciona tu avatar"}
+            </div>
+            {nameError && <div style={{ color: "#f44336", fontSize: 11, marginTop: 4 }}>Selecciona un avatar para continuar</div>}
           </div>
           <button onClick={() => {
-            if (!tempName.trim() || !tempAvatar) { setNameError(true); return; }
+            if (!tempAvatar) { setNameError(true); return; }
             setAvatar(tempAvatar);
             setAvatarName(tempName.trim());
             setShowAvatar(false);
