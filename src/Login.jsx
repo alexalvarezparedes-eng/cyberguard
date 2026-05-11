@@ -6,9 +6,8 @@ const SELLO_SRC = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1
 
 export default function Login({ onLogin }) {
   const [mode, setMode] = useState("login");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -28,25 +27,27 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = async () => {
     setError("");
-    if (!email || !password) { setError("Completa todos los campos"); return; }
+    if (!username.trim() || !password) { setError("Completa todos los campos"); return; }
+    if (username.trim().length < 3) { setError("El usuario debe tener al menos 3 caracteres"); return; }
     setLoading(true);
+    // Generar email interno invisible basado en el username
+    const fakeEmail = username.trim().toLowerCase().replace(/[^a-z0-9]/g, "") + "@cyberescudo.app";
     try {
       if (mode === "login") {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, fakeEmail, password);
       } else {
-        if (!name) { setError("Ingresa tu nombre"); setLoading(false); return; }
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName: name });
+        const cred = await createUserWithEmailAndPassword(auth, fakeEmail, password);
+        await updateProfile(cred.user, { displayName: username.trim() });
       }
       onLogin();
     } catch (e) {
       const msgs = {
         "auth/user-not-found": "Usuario no encontrado",
         "auth/wrong-password": "Contraseña incorrecta",
-        "auth/email-already-in-use": "El correo ya está registrado",
+        "auth/email-already-in-use": "Ese usuario ya está registrado",
         "auth/weak-password": "La contraseña debe tener al menos 6 caracteres",
-        "auth/invalid-email": "Correo inválido",
-        "auth/invalid-credential": "Credenciales incorrectas",
+        "auth/invalid-email": "Usuario inválido",
+        "auth/invalid-credential": "Usuario o contraseña incorrectos",
       };
       setError(msgs[e.code] || "Error de autenticación");
     }
@@ -133,27 +134,13 @@ export default function Login({ onLogin }) {
 
         {/* Campos */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {mode === "register" && (
-            <div>
-              <label style={{ color: C.mid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>Nombre completo</label>
-              <input
-                value={name} onChange={e => setName(e.target.value)}
-                placeholder="Nombre completo"
-                style={{
-                  width: "100%", padding: "11px 14px", borderRadius: 8,
-                  border: `1.5px solid ${C.border}`, fontSize: 13,
-                  color: C.mid, outline: "none", boxSizing: "border-box",
-                  background: "#fafff9",
-                }}
-              />
-            </div>
-          )}
           <div>
-            <label style={{ color: C.mid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>Correo electrónico</label>
+            <label style={{ color: C.mid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>Usuario</label>
             <input
-              type="email" value={email} onChange={e => setEmail(e.target.value)}
+              value={username} onChange={e => setUsername(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSubmit()}
-              placeholder="Correo electrónico"
+              placeholder="Nombre de usuario"
+              autoComplete="username"
               style={{
                 width: "100%", padding: "11px 14px", borderRadius: 8,
                 border: `1.5px solid ${C.border}`, fontSize: 13,
