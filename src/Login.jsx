@@ -138,7 +138,7 @@ export default function Login({ onLogin }) {
               <label style={{ color: C.mid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>Nombre completo</label>
               <input
                 value={name} onChange={e => setName(e.target.value)}
-                placeholder="Ej: Capitán García"
+                placeholder="Nombre completo"
                 style={{
                   width: "100%", padding: "11px 14px", borderRadius: 8,
                   border: `1.5px solid ${C.border}`, fontSize: 13,
@@ -153,7 +153,7 @@ export default function Login({ onLogin }) {
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleSubmit()}
-              placeholder="usuario@fae.mil.ec"
+              placeholder="Correo electrónico"
               style={{
                 width: "100%", padding: "11px 14px", borderRadius: 8,
                 border: `1.5px solid ${C.border}`, fontSize: 13,
